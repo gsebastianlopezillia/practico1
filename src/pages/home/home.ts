@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController, Platform, LoadingController } from 'ionic-angular';
 import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, CameraPreviewDimensions } from '@ionic-native/camera-preview';
+import { NativeStorage } from '@ionic-native/native-storage';
 
 import { EncuestaServiceProvider } from '../../providers/encuesta-service/encuesta-service';
 
@@ -36,7 +37,8 @@ export class HomePage {
               private cameraPreview: CameraPreview,
               public platform: Platform,
               private encuestaServiceProvider: EncuestaServiceProvider,
-              private loadingController: LoadingController) {
+              private loadingController: LoadingController,
+              private nativeStorage: NativeStorage) {
 
       //create loading spinner
       this.loading = this.loadingController.create({
@@ -53,7 +55,9 @@ export class HomePage {
             console.log('Fail preview: '+err)
 
       });
-      this.getEncuesta()
+      //this.getEncuestaRemota()
+      this.getSomething('encuesta');
+
   }
 
   /*CAMERA-PREVIEW*/
@@ -69,12 +73,13 @@ export class HomePage {
   /*FIN CAMERA-PREVIEW*/
 
   /*HTTP-SERVICE-PROVIDER*/
-    getEncuesta(){
+    getEncuestaRemota(){
       this.loading.present();
       this.encuestaServiceProvider.getJsonData().subscribe(
         result=>{
           console.log('Result.Data: '+result.data)
           this.encuesta = result;
+          //this.setEncuesta(this.encuesta);
           console.log("HTTP Success: "+JSON.stringify(this.encuesta));
         },
         err=>{
@@ -88,5 +93,37 @@ export class HomePage {
       );
     }
   /*FIN HTTP-SERVICE-PROVIDER*/
+
+  /*NATIVE-STORAGE*/
+  setEncuesta(resJson){
+    this.nativeStorage.setItem('encuesta', {json: resJson})
+      .then(
+        
+        () => {
+          console.log('Stored item encuesta!')
+          
+    }
+
+        ,
+        error => console.error('Error storing item', error)
+      );
+  }
+    
+  getSomething(encuesta){
+    this.nativeStorage.getItem(encuesta)
+      .then(
+        data => console.log('Stored item encuesta!'+JSON.stringify(data)),
+        error => console.error('Error storing item '+error)
+      );
+  }
+
+  removeEncuesta(encuesta){
+    console.log('Encuesta removda.');
+    this.nativeStorage.remove(encuesta)
+  }
+  
+
+
+  /*FIN NATIVE-STORAGE*/
 
 }

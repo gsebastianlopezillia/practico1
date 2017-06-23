@@ -6,10 +6,13 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { CameraPreview } from '@ionic-native/camera-preview';
 import { Http } from '@angular/http';
 import { HttpModule } from '@angular/http';
+import { NativeStorage } from '@ionic-native/native-storage';
+
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { EncuestaServiceProvider } from '../providers/encuesta-service/encuesta-service';
+
 
 @NgModule({
   declarations: [
@@ -31,7 +34,7 @@ import { EncuestaServiceProvider } from '../providers/encuesta-service/encuesta-
     SplashScreen,
     CameraPreview,
     EncuestaServiceProvider,
-    
+    NativeStorage,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     
   ]
