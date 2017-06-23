@@ -4,9 +4,12 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { CameraPreview } from '@ionic-native/camera-preview';
+import { Http } from '@angular/http';
+import { HttpModule } from '@angular/http';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
+import { EncuestaServiceProvider } from '../providers/encuesta-service/encuesta-service';
 
 @NgModule({
   declarations: [
@@ -15,6 +18,7 @@ import { HomePage } from '../pages/home/home';
   ],
   imports: [
     BrowserModule,
+    HttpModule,
     IonicModule.forRoot(MyApp)
   ],
   bootstrap: [IonicApp],
@@ -26,7 +30,10 @@ import { HomePage } from '../pages/home/home';
     StatusBar,
     SplashScreen,
     CameraPreview,
-    {provide: ErrorHandler, useClass: IonicErrorHandler}
+    EncuestaServiceProvider,
+    
+    {provide: ErrorHandler, useClass: IonicErrorHandler},
+    
   ]
 })
 export class AppModule {}

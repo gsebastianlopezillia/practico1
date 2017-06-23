@@ -1,15 +1,18 @@
 import { Component } from '@angular/core';
-import { NavController, Platform } from 'ionic-angular';
+import { NavController, Platform, LoadingController } from 'ionic-angular';
 import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, CameraPreviewDimensions } from '@ionic-native/camera-preview';
 
+import { EncuestaServiceProvider } from '../../providers/encuesta-service/encuesta-service';
 
 @Component({
   selector: 'page-home',
-  templateUrl: 'home.html'
+  templateUrl: 'home.html',
+  providers:[EncuestaServiceProvider]
 })
 export class HomePage {
-  private picture : String;
-
+  picture : String;
+  encuesta : any;
+  loading : any;
   // picture options
   private pictureOpts: CameraPreviewPictureOptions = {
     width: 1000,
@@ -31,7 +34,16 @@ export class HomePage {
   };
   constructor(public navCtrl: NavController,
               private cameraPreview: CameraPreview,
-              public platform: Platform) {
+              public platform: Platform,
+              private encuestaServiceProvider: EncuestaServiceProvider,
+              private loadingController: LoadingController) {
+
+      //create loading spinner
+      this.loading = this.loadingController.create({
+        content:
+          '<ion-spinner></ion-spinner>'
+          
+      });
       // start camera
       this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
           (res) => {
@@ -41,6 +53,7 @@ export class HomePage {
             console.log('Fail preview: '+err)
 
       });
+      this.getEncuesta()
   }
 
   /*CAMERA-PREVIEW*/
@@ -54,5 +67,26 @@ export class HomePage {
         });
   }
   /*FIN CAMERA-PREVIEW*/
+
+  /*HTTP-SERVICE-PROVIDER*/
+    getEncuesta(){
+      this.loading.present();
+      this.encuestaServiceProvider.getJsonData().subscribe(
+        result=>{
+          console.log('Result.Data: '+result.data)
+          this.encuesta = result;
+          console.log("HTTP Success: "+JSON.stringify(this.encuesta));
+        },
+        err=>{
+          console.error('Error: '+err);
+        },
+        ()=>{
+          this.loading.dismiss();
+          console.log('getData Completed');
+          //guardar en memoria el json recuperado
+        }
+      );
+    }
+  /*FIN HTTP-SERVICE-PROVIDER*/
 
 }
