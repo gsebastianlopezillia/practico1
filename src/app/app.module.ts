@@ -9,12 +9,9 @@ import { HttpModule } from '@angular/http';
 import { NativeStorage } from '@ionic-native/native-storage';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 
-
-
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { EncuestaServiceProvider } from '../providers/encuesta-service/encuesta-service';
-
 
 @NgModule({
   declarations: [
@@ -38,7 +35,6 @@ import { EncuestaServiceProvider } from '../providers/encuesta-service/encuesta-
     EncuestaServiceProvider,
     NativeStorage,
     SQLite, 
-    SQLiteObject,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     
   ]

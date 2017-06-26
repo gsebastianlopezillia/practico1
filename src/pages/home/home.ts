@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
-import { NavController, Platform, LoadingController } from 'ionic-angular';
+import { NavController, Platform} from 'ionic-angular';
+//, LoadingController   
 import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, CameraPreviewDimensions } from '@ionic-native/camera-preview';
 import { NativeStorage } from '@ionic-native/native-storage';
+import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
+
 
 import { EncuestaServiceProvider } from '../../providers/encuesta-service/encuesta-service';
 
@@ -13,7 +16,7 @@ import { EncuestaServiceProvider } from '../../providers/encuesta-service/encues
 export class HomePage {
   picture : String;
   encuesta : any;
-  loading : any;
+  //loading : any;
   // picture options
   private pictureOpts: CameraPreviewPictureOptions = {
     width: 1000,
@@ -37,15 +40,16 @@ export class HomePage {
               private cameraPreview: CameraPreview,
               public platform: Platform,
               private encuestaServiceProvider: EncuestaServiceProvider,
-              private loadingController: LoadingController,
-              private nativeStorage: NativeStorage) {
+              //private loadingController: LoadingController,
+              private nativeStorage: NativeStorage,
+              public sqlite: SQLite) {
 
-      //create loading spinner
+      /*create loading spinner
       this.loading = this.loadingController.create({
         content:
           '<ion-spinner></ion-spinner>'
           
-      });
+      });*/
       // start camera
       this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
           (res) => {
@@ -55,8 +59,8 @@ export class HomePage {
             console.log('Fail preview: '+err)
 
       });
-      //this.getEncuestaRemota()
-      this.getSomething('encuesta');
+      this.getEncuestaRemota()
+      //this.getSomething('encuesta');
 
   }
 
@@ -74,7 +78,7 @@ export class HomePage {
 
   /*HTTP-SERVICE-PROVIDER*/
     getEncuestaRemota(){
-      this.loading.present();
+      //this.loading.present();
       this.encuestaServiceProvider.getJsonData().subscribe(
         result=>{
           console.log('Result.Data: '+result.data)
@@ -86,7 +90,7 @@ export class HomePage {
           console.error('Error: '+err);
         },
         ()=>{
-          this.loading.dismiss();
+          //this.loading.dismiss();
           console.log('getData Completed');
           //guardar en memoria el json recuperado
         }
@@ -103,7 +107,6 @@ export class HomePage {
           console.log('Stored item encuesta!')
           
     }
-
         ,
         error => console.error('Error storing item', error)
       );

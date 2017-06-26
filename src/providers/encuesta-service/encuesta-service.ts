@@ -17,7 +17,7 @@ export class EncuestaServiceProvider {
   }
 
   getJsonData(){
-    return this.http.get('https://randomuser.me/api/').map(res=>res.json());
+    return this.http.get('http://192.168.0.61/tapuy/device/getEncuesta?idDispositivo=1&fechaModificacion=01/02/2017').map(res=>res.json());
   }
 
 }
