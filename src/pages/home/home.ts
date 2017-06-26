@@ -7,6 +7,7 @@ import { NativeStorage } from '@ionic-native/native-storage';
 import { EncuestaServiceProvider } from '../../providers/encuesta-service/encuesta-service';
 
 
+declare let KioskPlugin: any;
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html',
@@ -18,7 +19,6 @@ export class HomePage {
   uuid : String;
   botonName : String = 'false';
   encuesta: any;
-
   //loading : any;
   // picture options
   private pictureOpts: CameraPreviewPictureOptions = {
@@ -134,5 +134,13 @@ export class HomePage {
       this.botonName='true';
     else
       this.botonName='false';
+  }
+
+  habilitaKiosko(){
+    
+  }
+
+  deshabilitaKiosko(){
+    KioskPlugin.exitKiosk();
   }
 }
