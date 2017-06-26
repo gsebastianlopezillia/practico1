@@ -8,6 +8,7 @@ import { Http } from '@angular/http';
 import { HttpModule } from '@angular/http';
 import { NativeStorage } from '@ionic-native/native-storage';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
+import { Device } from '@ionic-native/device'
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -35,6 +36,7 @@ import { EncuestaServiceProvider } from '../providers/encuesta-service/encuesta-
     EncuestaServiceProvider,
     NativeStorage,
     SQLite, 
+    Device,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     
   ]

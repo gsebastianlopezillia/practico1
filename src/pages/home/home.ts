@@ -4,7 +4,7 @@ import { NavController, Platform} from 'ionic-angular';
 import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, CameraPreviewDimensions } from '@ionic-native/camera-preview';
 import { NativeStorage } from '@ionic-native/native-storage';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
-
+import { Device } from '@ionic-native/device'
 
 import { EncuestaServiceProvider } from '../../providers/encuesta-service/encuesta-service';
 
@@ -42,8 +42,9 @@ export class HomePage {
               private encuestaServiceProvider: EncuestaServiceProvider,
               //private loadingController: LoadingController,
               private nativeStorage: NativeStorage,
-              public sqlite: SQLite) {
-
+              public sqlite: SQLite,
+              private device: Device) {
+      
       /*create loading spinner
       this.loading = this.loadingController.create({
         content:
@@ -53,16 +54,18 @@ export class HomePage {
       // start camera
       this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
           (res) => {
-            console.log('Success preview: '+res)
+            console.log('Success preview: '+res);
           },
           (err) => {
-            console.log('Fail preview: '+err)
+            console.log('Fail preview: '+err);
 
       });
-      this.getEncuestaRemota()
+      this.getEncuestaRemota();
+      this.deviceData();
       //this.getSomething('encuesta');
 
   }
+
 
   /*CAMERA-PREVIEW*/
   getPicture(){
@@ -103,6 +106,7 @@ export class HomePage {
     this.nativeStorage.setItem('encuesta', {json: resJson})
       .then(
         
+
         () => {
           console.log('Stored item encuesta!')
           
@@ -128,5 +132,17 @@ export class HomePage {
 
 
   /*FIN NATIVE-STORAGE*/
+  
+  /*SQLITE*/
+  /*FIN SQLITE*/
 
+  /*DEVICE*/
+  deviceData(){
+      console.log('DEVICE DATA:');
+      console.log('UUID: '+this.device.uuid);
+      console.log('SERIAL: '+this.device.serial);
+      console.log('MANUFACTURER: '+this.device.manufacturer);
+      console.log('VERSION: '+this.device.version);
+  }
+  /*FIN DEVICE*/
 }
