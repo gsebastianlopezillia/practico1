@@ -1,29 +1,31 @@
 import { Component } from '@angular/core';
 import { NavController, Platform} from 'ionic-angular';
-//, LoadingController   
 import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, CameraPreviewDimensions } from '@ionic-native/camera-preview';
-import { NativeStorage } from '@ionic-native/native-storage';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Device } from '@ionic-native/device'
-
+import { NativeStorage } from '@ionic-native/native-storage';
 import { EncuestaServiceProvider } from '../../providers/encuesta-service/encuesta-service';
+
 
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html',
-  providers:[EncuestaServiceProvider]
+  providers: [EncuestaServiceProvider]
+  
 })
 export class HomePage {
   picture : String;
-  encuesta : any;
+  uuid : String;
+  botonName : String = 'false';
+  encuesta: any;
+
   //loading : any;
   // picture options
   private pictureOpts: CameraPreviewPictureOptions = {
     width: 1000,
     height: 1000,
-    quality: 100
+    quality: 10
   };
-  
     // camera options (Size and location). In the following example, the preview uses the rear camera and display the preview in the back of the webview
   private cameraPreviewOpts: CameraPreviewOptions = {
     x: 0,
@@ -39,18 +41,11 @@ export class HomePage {
   constructor(public navCtrl: NavController,
               private cameraPreview: CameraPreview,
               public platform: Platform,
-              private encuestaServiceProvider: EncuestaServiceProvider,
-              //private loadingController: LoadingController,
-              private nativeStorage: NativeStorage,
               public sqlite: SQLite,
+              public nativeStorage: NativeStorage,
+              public encuestaService: EncuestaServiceProvider,
               private device: Device) {
       
-      /*create loading spinner
-      this.loading = this.loadingController.create({
-        content:
-          '<ion-spinner></ion-spinner>'
-          
-      });*/
       // start camera
       this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
           (res) => {
@@ -60,9 +55,7 @@ export class HomePage {
             console.log('Fail preview: '+err);
 
       });
-      this.getEncuestaRemota();
-      this.deviceData();
-      //this.getSomething('encuesta');
+      //this.getEncuestaRemota();
 
   }
 
@@ -79,70 +72,67 @@ export class HomePage {
   }
   /*FIN CAMERA-PREVIEW*/
 
+  /*DEVICE*/
+  setUuid(){
+      this.uuid = this.device.uuid;
+  }
+  /*FIN DEVICE*/
+
   /*HTTP-SERVICE-PROVIDER*/
-    getEncuestaRemota(){
-      //this.loading.present();
-      this.encuestaServiceProvider.getJsonData().subscribe(
-        result=>{
-          console.log('Result.Data: '+result.data)
-          this.encuesta = result;
-          //this.setEncuesta(this.encuesta);
-          console.log("HTTP Success: "+JSON.stringify(this.encuesta));
-        },
-        err=>{
-          console.error('Error: '+err);
-        },
-        ()=>{
-          //this.loading.dismiss();
-          console.log('getData Completed');
-          //guardar en memoria el json recuperado
-        }
-      );
-    }
+  getEncuestaRemota() {
+    this.encuestaService.getJsonData().subscribe(
+      result => {
+        console.log('Result.Data: ' + result.data)
+        this.encuesta = JSON.parse(result._data);
+        console.log("HTTP Success: " + this.encuesta);
+      },
+      err => {
+        console.error('Error: ' + err);
+      },
+      () => {
+        console.log('getData Completed');
+        //guardar en memoria el json recuperado
+      }
+    );
+  }
   /*FIN HTTP-SERVICE-PROVIDER*/
 
   /*NATIVE-STORAGE*/
-  setEncuesta(resJson){
-    this.nativeStorage.setItem('encuesta', {json: resJson})
+  setEncuesta(resJson) {
+    this.nativeStorage.setItem('encuesta', { json: resJson })
       .then(
-        
-
-        () => {
-          console.log('Stored item encuesta!')
-          
-    }
-        ,
-        error => console.error('Error storing item', error)
+      () => {
+        console.log('Stored item encuesta!')
+      }
+      ,
+      error => console.error('Error storing item', error)
       );
   }
-    
-  getSomething(encuesta){
+
+  getSomething(encuesta) {
     this.nativeStorage.getItem(encuesta)
       .then(
-        data => console.log('Stored item encuesta!'+JSON.stringify(data)),
-        error => console.error('Error storing item '+error)
+      data => console.log('Stored item encuesta!' + JSON.stringify(data)),
+      error => console.error('Error storing item ' + error)
       );
   }
 
-  removeEncuesta(encuesta){
-    console.log('Encuesta removda.');
+  removeEncuesta(encuesta) {
+    console.log('Encuesta removida.');
     this.nativeStorage.remove(encuesta)
   }
-  
-
-
   /*FIN NATIVE-STORAGE*/
-  
-  /*SQLITE*/
-  /*FIN SQLITE*/
 
-  /*DEVICE*/
-  deviceData(){
-      console.log('DEVICE DATA:');
-      console.log('UUID: '+this.device.uuid);
-      console.log('SERIAL: '+this.device.serial);
-      console.log('MANUFACTURER: '+this.device.manufacturer);
-      console.log('VERSION: '+this.device.version);
+  /*LOGICA DE NEGOCIOS*/
+  compruebaEncuestaVigente(){
+    
   }
-  /*FIN DEVICE*/
+  /*FIN LOGICA DE NEGOCIOS*/
+
+  cabiarNombreBoton(){
+    if(this.botonName=='false')
+      this.botonName='true';
+    else
+      this.botonName='false';
+  }
 }
