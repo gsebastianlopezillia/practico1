@@ -3,6 +3,8 @@ import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
+import { AndroidFullScreen } from '@ionic-native/android-full-screen'
+
 
 
 import { HomePage } from '../pages/home/home';
@@ -18,15 +20,16 @@ export class MyApp {
     platform: Platform,
     statusBar: StatusBar,
     splashScreen: SplashScreen,
-    
+    fullScreen: AndroidFullScreen,
     sqlite: SQLite,
    ) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
-      statusBar.styleDefault();
+      statusBar.hide();
       splashScreen.hide();
       this.crearBase();
+      fullScreen.immersiveMode();
 
     });
   }

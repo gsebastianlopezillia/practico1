@@ -9,6 +9,7 @@ import { HttpModule } from '@angular/http';
 import { NativeStorage } from '@ionic-native/native-storage';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Device } from '@ionic-native/device'
+import { AndroidFullScreen } from '@ionic-native/android-full-screen'
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -37,6 +38,7 @@ import { EncuestaServiceProvider } from '../providers/encuesta-service/encuesta-
     NativeStorage,
     SQLite, 
     Device,
+    AndroidFullScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     
   ]
