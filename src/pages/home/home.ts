@@ -54,8 +54,6 @@ export class HomePage {
             (err) => {
               console.log('Fail preview: '+err);
         });
-        this.getEncuesta();
-        //this.getEncuestaRemota();}
       });
   }
 
@@ -79,52 +77,38 @@ export class HomePage {
   /*FIN DEVICE*/
 
   /*HTTP-SERVICE-PROVIDER*/
-  getEncuestaRemota() {
-    console.log('llama');
-    console.log(this.encuestaService.getJsonData());
-    
-    /*.subscribe(
-      result => {
-        console.log('Result.Data: ' + result._data)
-        this.encuesta = JSON.parse(result._data);
-        console.log("HTTP Success: " + this.encuesta);
-      },
-      err => {
-        console.error('Error: ' + err);
-      },
-      () => {
-        console.log('getData Completed');
-        //guardar en memoria el json recuperado
-      }
-    );*/
+  getEncuestaRemota(callback){
+    this.encuesta = this.encuestaService.getJsonData();
   }
   /*FIN HTTP-SERVICE-PROVIDER*/
 
-  /*NATIVE-STORAGE*/
-  setEncuesta(resJson) {
-    this.nativeStorage.setItem('encuesta', { json: resJson })
+  /*NATIVE-STORAGE
+  setEncuesta(encuesta) {
+    this.nativeStorage.setItem('encuesta', { encuesta })
       .then(
       () => {
         console.log('Encuesta en Storage');
       }
       ,
-      error => console.error('Error storing item', error)
+      err => console.error('Error storing item', err)
       );
-  }
+  }*/
 
   getEncuesta() {
     this.nativeStorage.getItem('encuesta')
       .then(
-      data => this.encuesta = data,
+      data => {this.encuesta = data;
+              console.log('Item recuperado');
+              console.log(this.encuesta);},
       error => console.error('Error storing item ' + error)
       );
-      console.log('Data: '+this.encuesta);
   }
 
   removeEncuesta() {
-    
-    this.nativeStorage.remove('encuesta');
-    console.log('Encuesta removida.');
+    this.nativeStorage.remove('encuesta').then(
+      data => console.log('Encuesta removida.'),
+      err => console.log(err)
+    )
   }
   /*FIN NATIVE-STORAGE*/
 
@@ -148,4 +132,6 @@ export class HomePage {
   deshabilitaKiosko(){
     KioskPlugin.exitKiosk();
   }
+
+  consoleEncuesta(){console.log(this.encuesta);}
 }
