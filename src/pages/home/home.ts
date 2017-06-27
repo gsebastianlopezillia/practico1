@@ -45,18 +45,18 @@ export class HomePage {
               public nativeStorage: NativeStorage,
               public encuestaService: EncuestaServiceProvider,
               private device: Device) {
-      
-      // start camera
-      this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
-          (res) => {
-            console.log('Success preview: '+res);
-          },
-          (err) => {
-            console.log('Fail preview: '+err);
-
+      platform.ready().then(() => {
+        // start camera
+        this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
+            (res) => {
+              console.log('Success preview: '+res);
+            },
+            (err) => {
+              console.log('Fail preview: '+err);
+        });
+        this.getEncuesta();
+        //this.getEncuestaRemota();}
       });
-      //this.getEncuestaRemota();
-
   }
 
 
@@ -80,9 +80,12 @@ export class HomePage {
 
   /*HTTP-SERVICE-PROVIDER*/
   getEncuestaRemota() {
-    this.encuestaService.getJsonData().subscribe(
+    console.log('llama');
+    console.log(this.encuestaService.getJsonData());
+    
+    /*.subscribe(
       result => {
-        console.log('Result.Data: ' + result.data)
+        console.log('Result.Data: ' + result._data)
         this.encuesta = JSON.parse(result._data);
         console.log("HTTP Success: " + this.encuesta);
       },
@@ -93,7 +96,7 @@ export class HomePage {
         console.log('getData Completed');
         //guardar en memoria el json recuperado
       }
-    );
+    );*/
   }
   /*FIN HTTP-SERVICE-PROVIDER*/
 
@@ -102,24 +105,26 @@ export class HomePage {
     this.nativeStorage.setItem('encuesta', { json: resJson })
       .then(
       () => {
-        console.log('Stored item encuesta!')
+        console.log('Encuesta en Storage');
       }
       ,
       error => console.error('Error storing item', error)
       );
   }
 
-  getSomething(encuesta) {
-    this.nativeStorage.getItem(encuesta)
+  getEncuesta() {
+    this.nativeStorage.getItem('encuesta')
       .then(
-      data => console.log('Stored item encuesta!' + JSON.stringify(data)),
+      data => this.encuesta = data,
       error => console.error('Error storing item ' + error)
       );
+      console.log('Data: '+this.encuesta);
   }
 
-  removeEncuesta(encuesta) {
+  removeEncuesta() {
+    
+    this.nativeStorage.remove('encuesta');
     console.log('Encuesta removida.');
-    this.nativeStorage.remove(encuesta)
   }
   /*FIN NATIVE-STORAGE*/
 

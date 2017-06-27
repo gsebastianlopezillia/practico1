@@ -12,12 +12,21 @@ import 'rxjs/add/operator/map';
 export class EncuestaServiceProvider {
 
   constructor(public http: Http) {
-
     console.log('Hello EncuestaServiceProvider Provider');
   }
 
   getJsonData(){
-    return this.http.get('http://192.168.0.61/tapuy/device/getEncuesta?idDispositivo=1&fechaModificacion=01/02/2017').map(res=>res.json());
-  }
+    var url='http://192.168.0.61:8080/tapuy/device/getEncuesta?idDispositivo=1&fechaModificacion=01/02/2017';
+    var respuesta = '';
+    this.http.get(url).map(res=> res.json()).subscribe(res => console.log(res));
+    
 
+    this.http.get(url).map(res=> res.json()).subscribe(
+      res => respuesta = res, 
+      err=> console.log(err), 
+      () => console.log('http.get exitoso')
+      );
+    
+    return respuesta;
+  }
 }
