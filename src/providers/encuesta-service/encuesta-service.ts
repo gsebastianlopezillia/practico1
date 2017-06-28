@@ -19,27 +19,33 @@ export class EncuestaServiceProvider {
   getJsonData(){
     /*editar campo url con la definitiva*/
     var url='http://192.168.0.61:8080/tapuy/device/getEncuesta?idDispositivo=1&fechaModificacion=01/02/2017';
-    var respuesta = '';
-
-    this.http.get(url).map(res=> res.json()).subscribe(
-      res => {respuesta = res;
-              console.log('Asignacion de http.get() exitosa')}, 
+    var respuesta;
+    this.http.get(url).map(res => res.json()).subscribe(
+      data => {
+              respuesta = JSON.parse(JSON.stringify(data));
+            }, 
       err=> console.log(err), 
-      () => this.setEncuesta(respuesta)
+      () => this.removeEncuesta(respuesta)
     );
     return respuesta;
   }
-
   /*NATIVE-STORAGE*/
-  setEncuesta(encuesta) {
-    this.nativeStorage.setItem('encuesta', { encuesta })
-      .then(
+  setEncuesta = function(encuesta) {
+    this.nativeStorage.setItem('encuesta',  { json: encuesta } ).then(
       () => {
         console.log('Encuesta en Storage');
-      }
-      ,
+      },
       err => console.error('Error storing item', err)
       );
   }
 
+  removeEncuesta = function(encuesta2) {
+    this.nativeStorage.remove('encuesta').then(
+      data => {
+        console.log('Registro limpio');
+        this.setEncuesta(encuesta2);
+      },
+      err => console.log(err)
+    )
+  }
 }

@@ -77,7 +77,7 @@ export class HomePage {
   /*FIN DEVICE*/
 
   /*HTTP-SERVICE-PROVIDER*/
-  getEncuestaRemota(callback){
+  getEncuestaRemota(){
     this.encuesta = this.encuestaService.getJsonData();
   }
   /*FIN HTTP-SERVICE-PROVIDER*/
@@ -96,19 +96,20 @@ export class HomePage {
 
   getEncuesta() {
     this.nativeStorage.getItem('encuesta')
-      .then(
-      data => {this.encuesta = data;
-              console.log('Item recuperado');
-              console.log(this.encuesta);},
-      error => console.error('Error storing item ' + error)
-      );
+    .then( data => {
+         this.encuesta = data;
+         console.log(this.encuesta);
+    },
+      error => console.error('Error storing item ' + error));
   }
 
   removeEncuesta() {
-    this.nativeStorage.remove('encuesta').then(
-      data => console.log('Encuesta removida.'),
+    this.nativeStorage.remove('encuesta')
+    .then(
+      data => console.log('Encuesta removida.')
+    ,
       err => console.log(err)
-    )
+    );
   }
   /*FIN NATIVE-STORAGE*/
 
