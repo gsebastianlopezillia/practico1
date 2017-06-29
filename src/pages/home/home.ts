@@ -5,6 +5,9 @@ import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { Device } from '@ionic-native/device'
 import { NativeStorage } from '@ionic-native/native-storage';
 import { EncuestaServiceProvider } from '../../providers/encuesta-service/encuesta-service';
+import { TapuyPreguntaComponent } from '../../components/tapuy-pregunta/tapuy-pregunta';
+
+
 
 declare let KioskPlugin: any;
 
@@ -15,11 +18,12 @@ declare let KioskPlugin: any;
 })
 
 export class HomePage {
-  /*DECLARE ZONE*/
+/*DECLARE-ZONE-----------------------------------------------------------*/
   picture : String;
   uuid : String;
   botonName : String = 'false';
   encuesta: any;
+  preguntaActual: any;
   // picture options
   private pictureOpts: CameraPreviewPictureOptions = {
     width: 1000,
@@ -39,8 +43,7 @@ export class HomePage {
     toBack: true,
     alpha: 1
   };
-  /*FIN DECLARE ZONE*/
-/*-----------------------------------------------------------------------*/
+/*CONSTRUCTOR------------------------------------------------------------*/
   constructor(public navCtrl: NavController,
               private cameraPreview: CameraPreview,
               public platform: Platform,
@@ -50,9 +53,10 @@ export class HomePage {
               private device: Device) {
       platform.ready().then(() => {
         this.getEncuesta();
+        this.setUuid();
       });
   }
-/*-----------------------------------------------------------------------*/
+/*LOGICA-----------------------------------------------------------------*/
 
 
   cargaTemplate1(){
@@ -61,52 +65,41 @@ export class HomePage {
       .map( objeto => {return objeto;}, err => console.log(err))
       .filter( objeto2 => { return objeto2.inicial == true;}, err => console.log(err))[0];
       //Ejemplo: {id: 1, pregunta: "Como...?", opciones: Array[3], inicial: true}
+    this.preguntaActual = new TapuyPreguntaComponent()
   }
 
   cargaOpcionesTemplate(){
 
   }
-/*-----------------------------------------------------------------------*/
-  /*CAMERA-PREVIEW*/
+/*CAMERA-----------------------------------------------------------------*/
+  //toma foto
   getPicture(){
-    this.cameraPreview.takePicture(this.pictureOpts).then((imageData) => {
-          this.picture = 'data:image/jpeg;base64,' + imageData;
-          console.log('Success take: '+this.picture);
-        }, (err) => {
-          console.log('Fail take: '+err);
-          this.picture = 'assets/img/test.jpg';
-        });
+    this.cameraPreview.takePicture(this.pictureOpts).then(
+      (imageData) => { this.picture = 'data:image/jpeg;base64,' + imageData; },//NO TOCAR
+      (err) => { console.log(err); });
   }
 
+  //abre octurador
   openCamera(){
     this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
-      (res) => {
-        console.log('Success preview: '+res);
-        this.getPicture();
-      },
-      (err) => {
-        console.log('Fail preview: '+err);
-      });
+      (res) => { this.getPicture(); },
+      (err) => { console.log('Fail preview: '+err); });
   }
 
-
-  /*FIN CAMERA-PREVIEW*/
-/*-----------------------------------------------------------------------*/
-  /*DEVICE*/
+  /*END CAMERA-PREVIEW*/
+/*DEVICE-----------------------------------------------------------------*/
   setUuid(){
       this.uuid = this.device.uuid;
   }
-  /*FIN DEVICE*/
-/*-----------------------------------------------------------------------*/
-  /*HTTP-SERVICE-PROVIDER*/
-
+  /*END DEVICE*/
+/*/*HTTP-SERVICE-PROVIDER------------------------------------------------*/
   getEncuestaRemota(){
     this.encuesta = this.encuestaService.getJsonData();
     
   }
-  /*FIN HTTP-SERVICE-PROVIDER*/
-/*-----------------------------------------------------------------------*/
-  /*NATIVE-STORAGE
+  /*END HTTP-SERVICE-PROVIDER*/
+/*NATIVE-STORAGE---------------------------------------------------------*/
+  /*
   setEncuesta(encuesta) {
     this.nativeStorage.setItem('encuesta', { encuesta })
       .then(
@@ -135,13 +128,12 @@ export class HomePage {
     .then(data => console.log('Encuesta removida.'), 
           err => console.log(err));
   }
-  /*FIN NATIVE-STORAGE*/
-/*-----------------------------------------------------------------------*/
-  /*KIOSK-MODE*/
+  /*END NATIVE-STORAGE*/
+/*KIOSK-MODE-------------------------------------------------------------*/
   deshabilitaKiosko(){
     KioskPlugin.exitKiosk();
   }
-  /*FIN KIOSK-MODE*/
-/*-----------------------------------------------------------------------*/
+  /*END KIOSK-MODE*/
+/*END--------------------------------------------------------------------*/
 
 }
