@@ -3,7 +3,7 @@ import { Platform } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
-import { AndroidFullScreen } from '@ionic-native/android-full-screen'
+import { AndroidFullScreen } from '@ionic-native/android-full-screen';
 
 
 

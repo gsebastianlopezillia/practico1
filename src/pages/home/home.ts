@@ -6,27 +6,28 @@ import { Device } from '@ionic-native/device'
 import { NativeStorage } from '@ionic-native/native-storage';
 import { EncuestaServiceProvider } from '../../providers/encuesta-service/encuesta-service';
 
-
 declare let KioskPlugin: any;
+
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html',
   providers: [EncuestaServiceProvider]
-  
 })
+
 export class HomePage {
+  /*DECLARE ZONE*/
   picture : String;
   uuid : String;
   botonName : String = 'false';
   encuesta: any;
-  //loading : any;
   // picture options
   private pictureOpts: CameraPreviewPictureOptions = {
     width: 1000,
     height: 1000,
     quality: 10
   };
-    // camera options (Size and location). In the following example, the preview uses the rear camera and display the preview in the back of the webview
+  // camera options (Size and location). In the following example, the preview
+  // uses the rear camera and display the preview in the back of the webview
   private cameraPreviewOpts: CameraPreviewOptions = {
     x: 0,
     y: 0,
@@ -38,6 +39,8 @@ export class HomePage {
     toBack: true,
     alpha: 1
   };
+  /*FIN DECLARE ZONE*/
+/*-----------------------------------------------------------------------*/
   constructor(public navCtrl: NavController,
               private cameraPreview: CameraPreview,
               public platform: Platform,
@@ -46,18 +49,10 @@ export class HomePage {
               public encuestaService: EncuestaServiceProvider,
               private device: Device) {
       platform.ready().then(() => {
-        // start camera
-        this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
-            (res) => {
-              console.log('Success preview: '+res);
-            },
-            (err) => {
-              console.log('Fail preview: '+err);
-        });
         this.getEncuesta();
       });
   }
-
+/*-----------------------------------------------------------------------*/
 
 
   cargaTemplate1(){
@@ -71,8 +66,7 @@ export class HomePage {
   cargaOpcionesTemplate(){
 
   }
-
-
+/*-----------------------------------------------------------------------*/
   /*CAMERA-PREVIEW*/
   getPicture(){
     this.cameraPreview.takePicture(this.pictureOpts).then((imageData) => {
@@ -83,21 +77,35 @@ export class HomePage {
           this.picture = 'assets/img/test.jpg';
         });
   }
-  /*FIN CAMERA-PREVIEW*/
 
+  openCamera(){
+    this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
+      (res) => {
+        console.log('Success preview: '+res);
+        this.getPicture();
+      },
+      (err) => {
+        console.log('Fail preview: '+err);
+      });
+  }
+
+
+  /*FIN CAMERA-PREVIEW*/
+/*-----------------------------------------------------------------------*/
   /*DEVICE*/
   setUuid(){
       this.uuid = this.device.uuid;
   }
   /*FIN DEVICE*/
-
+/*-----------------------------------------------------------------------*/
   /*HTTP-SERVICE-PROVIDER*/
+
   getEncuestaRemota(){
     this.encuesta = this.encuestaService.getJsonData();
     
   }
   /*FIN HTTP-SERVICE-PROVIDER*/
-
+/*-----------------------------------------------------------------------*/
   /*NATIVE-STORAGE
   setEncuesta(encuesta) {
     this.nativeStorage.setItem('encuesta', { encuesta })
@@ -110,49 +118,30 @@ export class HomePage {
       );
   }*/
 
+  //obtiene la encuesta almacenada en el dispositivo
   getEncuesta() {
-    console.log('getEncuesta()');
     this.nativeStorage.getItem('encuesta')
     .then( 
       data => {
          this.encuesta = JSON.parse(JSON.stringify(data));
-         console.log(this.encuesta);
          this.cargaTemplate1();
-         console.log('FIN getEncuesta()');   
       },
       error => console.error('Error storing item ' + error));
   }
 
+  //borra la encuesta almacenada en el dispositivo
   removeEncuesta() {
     this.nativeStorage.remove('encuesta')
-    .then(
-      data => console.log('Encuesta removida.')
-    ,
-      err => console.log(err)
-    );
+    .then(data => console.log('Encuesta removida.'), 
+          err => console.log(err));
   }
   /*FIN NATIVE-STORAGE*/
-
-  /*LOGICA DE NEGOCIOS*/
-  compruebaEncuestaVigente(){
-    
-  }
-  /*FIN LOGICA DE NEGOCIOS*/
-
-  cabiarNombreBoton(){
-    if(this.botonName=='false')
-      this.botonName='true';
-    else
-      this.botonName='false';
-  }
-
-  habilitaKiosko(){
-    
-  }
-
+/*-----------------------------------------------------------------------*/
+  /*KIOSK-MODE*/
   deshabilitaKiosko(){
     KioskPlugin.exitKiosk();
   }
+  /*FIN KIOSK-MODE*/
+/*-----------------------------------------------------------------------*/
 
-  consoleEncuesta(){console.log(this.encuesta);}
 }

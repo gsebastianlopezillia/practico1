@@ -13,10 +13,10 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class TapuyPreguntaComponent {
 
   text: string;
-
-  constructor(titulo: string, opciones: Int16Array) {
+/*titulo: string, opciones: Int16Array */
+  constructor() {
     console.log('Hello TapuyPreguntaComponent Component');
-    this.text = titulo;
+    this.text = 'Hello pela';
     
   }
 
