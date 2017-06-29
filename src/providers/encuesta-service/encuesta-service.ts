@@ -32,9 +32,7 @@ export class EncuestaServiceProvider {
   /*NATIVE-STORAGE*/
   setEncuesta = function(encuesta) {
     this.nativeStorage.setItem('encuesta',  { json: encuesta } ).then(
-      () => {
-        console.log('Encuesta en Storage');
-      },
+      () => console.log('Encuesta en Storage'),
       err => console.error('Error storing item', err)
       );
   }

@@ -54,7 +54,22 @@ export class HomePage {
             (err) => {
               console.log('Fail preview: '+err);
         });
+        this.getEncuesta();
       });
+  }
+
+
+
+  cargaTemplate1(){
+    //busco la primer pregunta
+    var pregunta1 = JSON.parse(JSON.stringify(this.encuesta.json.preguntas))
+      .map( objeto => {return objeto;}, err => console.log(err))
+      .filter( objeto2 => { return objeto2.inicial == true;}, err => console.log(err))[0];
+      //Ejemplo: {id: 1, pregunta: "Como...?", opciones: Array[3], inicial: true}
+  }
+
+  cargaOpcionesTemplate(){
+
   }
 
 
@@ -79,6 +94,7 @@ export class HomePage {
   /*HTTP-SERVICE-PROVIDER*/
   getEncuestaRemota(){
     this.encuesta = this.encuestaService.getJsonData();
+    
   }
   /*FIN HTTP-SERVICE-PROVIDER*/
 
@@ -95,11 +111,15 @@ export class HomePage {
   }*/
 
   getEncuesta() {
+    console.log('getEncuesta()');
     this.nativeStorage.getItem('encuesta')
-    .then( data => {
-         this.encuesta = data;
+    .then( 
+      data => {
+         this.encuesta = JSON.parse(JSON.stringify(data));
          console.log(this.encuesta);
-    },
+         this.cargaTemplate1();
+         console.log('FIN getEncuesta()');   
+      },
       error => console.error('Error storing item ' + error));
   }
 

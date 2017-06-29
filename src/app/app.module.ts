@@ -14,11 +14,19 @@ import { AndroidFullScreen } from '@ionic-native/android-full-screen'
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { EncuestaServiceProvider } from '../providers/encuesta-service/encuesta-service';
+import { ComponentPreguntaComponent } from '../components/component-pregunta/component-pregunta';
+import { ComponentOpcionComponent } from '../components/component-opcion/component-opcion';
+import { TapuyOpcionComponent } from '../components/tapuy-opcion/tapuy-opcion';
+import { TapuyPreguntaComponent } from '../components/tapuy-pregunta/tapuy-pregunta';
 
 @NgModule({
   declarations: [
     MyApp,
-    HomePage
+    HomePage,
+    ComponentPreguntaComponent,
+    ComponentOpcionComponent,
+    TapuyOpcionComponent,
+    TapuyPreguntaComponent
   ],
   imports: [
     BrowserModule,
