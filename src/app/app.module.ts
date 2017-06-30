@@ -13,16 +13,17 @@ import { AndroidFullScreen } from '@ionic-native/android-full-screen'
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
-import { EncuestaServiceProvider } from '../providers/encuesta-service/encuesta-service';
-import { TapuyOpcionComponent } from '../components/tapuy-opcion/tapuy-opcion';
-import { TapuyPreguntaComponent } from '../components/tapuy-pregunta/tapuy-pregunta';
+
+import { PvdCameraProvider } from '../providers/pvd-camera/pvd-camera';
+import { PvdDeviceProvider } from '../providers/pvd-device/pvd-device';
+import { PvdHttpProvider } from '../providers/pvd-http/pvd-http';
+import { PvdStorageProvider } from '../providers/pvd-storage/pvd-storage';
+import { PvdSqliteProvider } from '../providers/pvd-sqlite/pvd-sqlite';
 
 @NgModule({
   declarations: [
     MyApp,
     HomePage,
-    TapuyOpcionComponent,
-    TapuyPreguntaComponent
   ],
   imports: [
     BrowserModule,
@@ -38,13 +39,16 @@ import { TapuyPreguntaComponent } from '../components/tapuy-pregunta/tapuy-pregu
     StatusBar,
     SplashScreen,
     CameraPreview,
-    EncuestaServiceProvider,
     NativeStorage,
     SQLite, 
     Device,
     AndroidFullScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    
+    PvdCameraProvider,
+    PvdDeviceProvider,
+    PvdHttpProvider,
+    PvdStorageProvider,
+    PvdSqliteProvider,
   ]
 })
 export class AppModule {}

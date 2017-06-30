@@ -1,63 +1,41 @@
 import { Component } from '@angular/core';
-import { NavController, Platform} from 'ionic-angular';
-import { CameraPreview, CameraPreviewPictureOptions, CameraPreviewOptions, CameraPreviewDimensions } from '@ionic-native/camera-preview';
-import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
+import { NavController, NavParams, Platform} from 'ionic-angular';
 import { Device } from '@ionic-native/device'
 import { NativeStorage } from '@ionic-native/native-storage';
-import { EncuestaServiceProvider } from '../../providers/encuesta-service/encuesta-service';
-import { TapuyPreguntaComponent } from '../../components/tapuy-pregunta/tapuy-pregunta';
 
-
+import { PvdHttpProvider } from '../../providers/pvd-http/pvd-http';
+import { PvdCameraProvider } from '../../providers/pvd-camera/pvd-camera';
+import { PvdStorageProvider } from '../../providers/pvd-storage/pvd-storage';
 
 declare let KioskPlugin: any;
 
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html',
-  providers: [EncuestaServiceProvider]
+  providers: [PvdHttpProvider,PvdCameraProvider,PvdStorageProvider]
 })
 
 export class HomePage {
-/*DECLARE-ZONE-----------------------------------------------------------*/
-  picture : String;
   uuid : String;
-  botonName : String = 'false';
   encuesta: any;
-  preguntaActual: any;
-  // picture options
-  private pictureOpts: CameraPreviewPictureOptions = {
-    width: 1000,
-    height: 1000,
-    quality: 10
-  };
-  // camera options (Size and location). In the following example, the preview
-  // uses the rear camera and display the preview in the back of the webview
-  private cameraPreviewOpts: CameraPreviewOptions = {
-    x: 0,
-    y: 0,
-    width: window.screen.width,
-    height: window.screen.height,
-    camera: 'front',
-    tapPhoto: false,
-    previewDrag: false,
-    toBack: true,
-    alpha: 1
-  };
-/*CONSTRUCTOR------------------------------------------------------------*/
+  preguntaInicial: any;
+  preguntas: any = [];
+  opciones: any = [];
+  
   constructor(public navCtrl: NavController,
-              private cameraPreview: CameraPreview,
+              public navParams: NavParams,
               public platform: Platform,
-              public sqlite: SQLite,
+              public http: PvdHttpProvider,
+              public camera: PvdCameraProvider,
+              public storage: PvdStorageProvider,
               public nativeStorage: NativeStorage,
-              public encuestaService: EncuestaServiceProvider,
               private device: Device) {
       platform.ready().then(() => {
-        this.getEncuesta();
+        http.getJsonData();
         this.setUuid();
+        this.encuesta = this.getEncuesta();
       });
   }
-/*LOGICA-----------------------------------------------------------------*/
-
 
   cargaTemplate1(){
     //busco la primer pregunta
@@ -65,75 +43,72 @@ export class HomePage {
       .map( objeto => {return objeto;}, err => console.log(err))
       .filter( objeto2 => { return objeto2.inicial == true;}, err => console.log(err))[0];
       //Ejemplo: {id: 1, pregunta: "Como...?", opciones: Array[3], inicial: true}
-    this.preguntaActual = new TapuyPreguntaComponent()
+    this.preguntaInicial = pregunta1;//dejo en memoria la primer pregunta
+    var conImagenes = true;//declaro la bandera de imagenes
+    var opcionesPregunta1 = JSON.parse(JSON.stringify(this.encuesta.json.opciones))
+      .map( objeto => {
+        if(objeto.imagen == "" && objeto.id in pregunta1.opciones){//defino la bandera de imagenes
+          conImagenes = false;
+        }
+        return objeto;}, err => console.log(err))
+      .filter( objeto2 => { return objeto2.id in pregunta1.opciones;}, err => console.log(err));
+    document.getElementById("preguntaContainer").innerHTML = pregunta1.pregunta;
+    if(conImagenes){
+      var cantidad = opcionesPregunta1.length;
+      for(var o = 0; o < cantidad ; o++){
+        var img = document.createElement("img");
+        img.src = opcionesPregunta1[o].imagen;
+        img.className="imagenOpcion";
+        document.getElementById("opcionesContainer").appendChild(img);
+      }
+    }
   }
 
   cargaOpcionesTemplate(){
-
-  }
-/*CAMERA-----------------------------------------------------------------*/
-  //toma foto
-  getPicture(){
-    this.cameraPreview.takePicture(this.pictureOpts).then(
-      (imageData) => { this.picture = 'data:image/jpeg;base64,' + imageData; },//NO TOCAR
-      (err) => { console.log(err); });
+    //preg.
   }
 
-  //abre octurador
-  openCamera(){
-    this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
-      (res) => { this.getPicture(); },
-      (err) => { console.log('Fail preview: '+err); });
-  }
-
-  /*END CAMERA-PREVIEW*/
 /*DEVICE-----------------------------------------------------------------*/
   setUuid(){
       this.uuid = this.device.uuid;
   }
-  /*END DEVICE*/
-/*/*HTTP-SERVICE-PROVIDER------------------------------------------------*/
+
+/*HTTP-------------------------------------------------------------------*/
   getEncuestaRemota(){
-    this.encuesta = this.encuestaService.getJsonData();
-    
-  }
-  /*END HTTP-SERVICE-PROVIDER*/
-/*NATIVE-STORAGE---------------------------------------------------------*/
-  /*
-  setEncuesta(encuesta) {
-    this.nativeStorage.setItem('encuesta', { encuesta })
-      .then(
-      () => {
-        console.log('Encuesta en Storage');
-      }
-      ,
-      err => console.error('Error storing item', err)
-      );
-  }*/
-
-  //obtiene la encuesta almacenada en el dispositivo
-  getEncuesta() {
-    this.nativeStorage.getItem('encuesta')
-    .then( 
-      data => {
-         this.encuesta = JSON.parse(JSON.stringify(data));
-         this.cargaTemplate1();
-      },
-      error => console.error('Error storing item ' + error));
+    this.encuesta = this.http.getJsonData();
   }
 
-  //borra la encuesta almacenada en el dispositivo
-  removeEncuesta() {
-    this.nativeStorage.remove('encuesta')
-    .then(data => console.log('Encuesta removida.'), 
-          err => console.log(err));
-  }
-  /*END NATIVE-STORAGE*/
 /*KIOSK-MODE-------------------------------------------------------------*/
   deshabilitaKiosko(){
     KioskPlugin.exitKiosk();
   }
-  /*END KIOSK-MODE*/
+
+/*NATIVE-STORAGE---------------------------------------------------------*/
+  getEncuesta(){
+    this.nativeStorage.getItem('encuesta').then(
+      data => { 
+        var respuesta = JSON.parse(JSON.stringify(data));
+        this.encuesta = respuesta; //recupero la encuesta del dispositivo
+        for(var i in this.encuesta.json.preguntas){
+          this.preguntas.push(JSON.parse(JSON.stringify(this.encuesta.json.preguntas[i])));
+        }
+        for(var i in this.encuesta.json.opciones){
+          this.opciones.push(JSON.parse(JSON.stringify(this.encuesta.json.opciones[i])));
+        }
+        console.log(this.preguntas);
+        console.log(this.opciones);
+        this.cargaTemplate1();
+      },
+      error => console.error('Error reading item ' + error));
+  }
 /*END--------------------------------------------------------------------*/
 
+  buscaPrimera(){
+    
+  }
+
+  buscaOpciones(){
+
+  }
 }
+
