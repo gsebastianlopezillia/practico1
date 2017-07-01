@@ -32,7 +32,7 @@ export class PvdCameraProvider {
     alpha: 1
   };
 
-  picture : String;
+  
 
   constructor(public http: Http, public cameraPreview: CameraPreview) {
     console.log('Hello PvdCameraProvider Provider');
@@ -40,15 +40,19 @@ export class PvdCameraProvider {
   /*CAMERA-----------------------------------------------------------------*/
   //toma foto
   getPicture(){
+    let picture : String;
     this.cameraPreview.takePicture(this.pictureOpts).then(
-      (imageData) => { this.picture = 'data:image/jpeg;base64,' + imageData; },//NO TOCAR
+      (imageData) => { 
+        picture = 'data:image/jpeg;base64,' + imageData;
+        return picture;
+     },//NO TOCAR
       (err) => { console.log(err); });
   }
 
   //abre octurador
   openCamera(){
     this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
-      (res) => { this.getPicture(); },
+      (res) => { return this.getPicture(); },
       (err) => { console.log('Fail preview: '+err); });
   }
 

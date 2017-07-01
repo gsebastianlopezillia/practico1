@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, Platform} from 'ionic-angular';
+import { NavController, NavParams, Platform } from 'ionic-angular';
 import { Device } from '@ionic-native/device'
 import { NativeStorage } from '@ionic-native/native-storage';
 
@@ -12,103 +12,117 @@ declare let KioskPlugin: any;
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html',
-  providers: [PvdHttpProvider,PvdCameraProvider,PvdStorageProvider]
+  providers: [PvdHttpProvider, PvdCameraProvider, PvdStorageProvider]
 })
 
 export class HomePage {
-  uuid : String;
+  uuid: String;
   encuesta: any;
   preguntaInicial: any;
   preguntas: any = [];
   opciones: any = [];
-  
+
   constructor(public navCtrl: NavController,
-              public navParams: NavParams,
-              public platform: Platform,
-              public http: PvdHttpProvider,
-              public camera: PvdCameraProvider,
-              public storage: PvdStorageProvider,
-              public nativeStorage: NativeStorage,
-              private device: Device) {
-      platform.ready().then(() => {
-        http.getJsonData();
-        this.setUuid();
-        this.encuesta = this.getEncuesta();
-      });
+    public navParams: NavParams,
+    public platform: Platform,
+    public http: PvdHttpProvider,
+    public camera: PvdCameraProvider,
+    public storage: PvdStorageProvider,
+    public nativeStorage: NativeStorage,
+    private device: Device) {
+    platform.ready().then(() => {
+      http.getJsonData();
+      this.setUuid();
+      this.encuesta = this.getEncuesta();
+    });
   }
 
-  cargaTemplate1(){
+  cargaTemplate1() {
     //busco la primer pregunta
     var pregunta1 = JSON.parse(JSON.stringify(this.encuesta.json.preguntas))
-      .map( objeto => {return objeto;}, err => console.log(err))
-      .filter( objeto2 => { return objeto2.inicial == true;}, err => console.log(err))[0];
-      //Ejemplo: {id: 1, pregunta: "Como...?", opciones: Array[3], inicial: true}
+      .map(objeto => { return objeto; }, err => console.log(err))
+      .filter(objeto2 => { return objeto2.inicial == true; }, err => console.log(err))[0];
+    //Ejemplo: {id: 1, pregunta: "Como...?", opciones: Array[3], inicial: true}
     this.preguntaInicial = pregunta1;//dejo en memoria la primer pregunta
     var conImagenes = true;//declaro la bandera de imagenes
     var opcionesPregunta1 = JSON.parse(JSON.stringify(this.encuesta.json.opciones))
-      .map( objeto => {
-        if(objeto.imagen == "" && objeto.id in pregunta1.opciones){//defino la bandera de imagenes
+      .map(objeto => {
+        if (objeto.imagen == "" && objeto.id in pregunta1.opciones) {//defino la bandera de imagenes
           conImagenes = false;
         }
-        return objeto;}, err => console.log(err))
-      .filter( objeto2 => { return objeto2.id in pregunta1.opciones;}, err => console.log(err));
+        return objeto;
+      }, err => console.log(err))
+      .filter(objeto2 => { return objeto2.id in pregunta1.opciones; }, err => console.log(err));
     document.getElementById("preguntaContainer").innerHTML = pregunta1.pregunta;
-    if(conImagenes){
+    if (conImagenes) {
       var cantidad = opcionesPregunta1.length;
-      for(var o = 0; o < cantidad ; o++){
+      for (var o = 0; o < cantidad; o++) {
         var img = document.createElement("img");
         img.src = opcionesPregunta1[o].imagen;
-        img.className="imagenOpcion";
+        img.id = 'op' + opcionesPregunta1[o].id;
+        img.className = "imagenOpcion";
         document.getElementById("opcionesContainer").appendChild(img);
+        document.getElementById(img.id).addEventListener("click",function(){
+          var foto = this.sacaFoto();
+        },false);
       }
+    }else{
+
     }
   }
 
-  cargaOpcionesTemplate(){
+  sacaFoto() {
+    var foto = this.camera.openCamera();
+    console.log('------------------------FOTO-------------------------');
+    console.log(foto);
+    return foto;
+  }
+
+  clickOpcion() {
+    console.log(event);
+
     //preg.
   }
 
-/*DEVICE-----------------------------------------------------------------*/
-  setUuid(){
-      this.uuid = this.device.uuid;
+  /*DEVICE-----------------------------------------------------------------*/
+  setUuid() {
+    this.uuid = this.device.uuid;
   }
 
-/*HTTP-------------------------------------------------------------------*/
-  getEncuestaRemota(){
+  /*HTTP-------------------------------------------------------------------*/
+  getEncuestaRemota() {
     this.encuesta = this.http.getJsonData();
   }
 
-/*KIOSK-MODE-------------------------------------------------------------*/
-  deshabilitaKiosko(){
+  /*KIOSK-MODE-------------------------------------------------------------*/
+  deshabilitaKiosko() {
     KioskPlugin.exitKiosk();
   }
 
-/*NATIVE-STORAGE---------------------------------------------------------*/
-  getEncuesta(){
+  /*NATIVE-STORAGE---------------------------------------------------------*/
+  getEncuesta() {
     this.nativeStorage.getItem('encuesta').then(
-      data => { 
+      data => {
         var respuesta = JSON.parse(JSON.stringify(data));
         this.encuesta = respuesta; //recupero la encuesta del dispositivo
-        for(var i in this.encuesta.json.preguntas){
+        for (var i in this.encuesta.json.preguntas) {
           this.preguntas.push(JSON.parse(JSON.stringify(this.encuesta.json.preguntas[i])));
         }
-        for(var i in this.encuesta.json.opciones){
+        for (var i in this.encuesta.json.opciones) {
           this.opciones.push(JSON.parse(JSON.stringify(this.encuesta.json.opciones[i])));
         }
-        console.log(this.preguntas);
-        console.log(this.opciones);
         this.cargaTemplate1();
       },
       error => console.error('Error reading item ' + error));
   }
-/*END--------------------------------------------------------------------*/
+  /*END--------------------------------------------------------------------*/
 
-  buscaPrimera(){
-    
-  }
-
-  buscaOpciones(){
+  buscaPrimera() {
 
   }
+
+  
+
+  
 }
 
