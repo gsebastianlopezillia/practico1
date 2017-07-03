@@ -13,6 +13,8 @@ import 'rxjs/add/operator/map';
 @Injectable()
 export class PvdCameraProvider {
 
+  picture: string = '';
+
   private pictureOpts: CameraPreviewPictureOptions = {
     width: 1000,
     height: 1000,
@@ -32,30 +34,31 @@ export class PvdCameraProvider {
     alpha: 1
   };
 
-  
-
   constructor(public http: Http, public cameraPreview: CameraPreview) {
-    console.log('Hello PvdCameraProvider Provider');
-  }
-  /*CAMERA-----------------------------------------------------------------*/
-  //toma foto
-  getPicture(){
-    let picture : String;
-    this.cameraPreview.takePicture(this.pictureOpts).then(
-      (imageData) => { 
-        picture = 'data:image/jpeg;base64,' + imageData;
-        return picture;
-     },//NO TOCAR
-      (err) => { console.log(err); });
+
   }
 
-  //abre octurador
-  openCamera(){
+  getPicture() {
+    this.cameraPreview.takePicture(this.pictureOpts).then((imageData) => {
+      this.picture = 'data:image/jpeg;base64,' + imageData;
+      return this.picture;
+    }, (err) => {
+      console.log('Fail take: ' + err);
+    });
+  }
+
+  openCamera() {
     this.cameraPreview.startCamera(this.cameraPreviewOpts).then(
-      (res) => { return this.getPicture(); },
-      (err) => { console.log('Fail preview: '+err); });
+      (res) => { console.log('camSuccess') },
+      (err) => { console.log('camFail: ' + err); }
+    );
   }
 
-  /*END CAMERA-PREVIEW*/
+  closeCamera() {
+    this.cameraPreview.stopCamera().then(
+      (res) => { console.log('closeCamSuccess') },
+      (err) => { console.log('closeCamFail: ' + err); }
+    );
+  }
 
 }

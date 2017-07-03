@@ -13,7 +13,7 @@ import { PvdStorageProvider } from '../../providers/pvd-storage/pvd-storage';
 export class PvdHttpProvider {
 
   constructor(public http: Http, public pdvStorage: PvdStorageProvider) {
-    console.log('Hello PvdHttpProvider Provider');
+    //console.log('Hello PvdHttpProvider Provider');
   }
 
   getJsonData() {

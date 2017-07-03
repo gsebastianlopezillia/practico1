@@ -13,7 +13,7 @@ import { NativeStorage } from '@ionic-native/native-storage';
 export class PvdStorageProvider {
 
   constructor(public nativeStorage: NativeStorage) {
-    console.log('Hello PvdStorageProvider Provider');
+    //console.log('Hello PvdStorageProvider Provider');
   }
   
   //guarda una encuesta en el dispositivo

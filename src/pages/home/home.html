@@ -8,7 +8,14 @@
 
 <ion-content padding text-center>
     <div text-center id="preguntaContainer"></div>
-    <div id="opcionesContainer" text-center></div>
+    <div id="opcionesContainer" text-center>
+        <ion-list>
+            <ion-item *ngFor="let opsi of opcionesSinImagen">
+                <h3 (click)="sacaFoto(opsi)">{{opsi.opcion}}</h3>
+            </ion-item>
+            <img *ngFor="let opci of opcionesConImagen" src="{{opci.imagen}}" id="{{opci.id}}" (click)="sacaFoto(opci)" />
+
+        </ion-list>
+    </div>
     <button ion-button block (click)="deshabilitaKiosko()">deshabilitaKiosko</button>
-    <button ion-button block (click)="getEncuesta()">getEncuesta</button>
 </ion-content>

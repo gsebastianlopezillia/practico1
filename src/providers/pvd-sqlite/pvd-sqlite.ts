@@ -14,7 +14,7 @@ import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 export class PvdSqliteProvider {
 
   constructor(public http: Http, public sqlite: SQLite) {
-    console.log('Hello PvdSqliteProvider Provider');
+    //console.log('Hello PvdSqliteProvider Provider');
   }
 
   crearBase() {
