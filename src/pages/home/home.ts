@@ -70,7 +70,6 @@ export class HomePage {
       http.getJsonData();
       this.encuesta = this.getEncuesta();
       this.setUuid();
-      this.elDemonio();
     });
   }
 
@@ -90,6 +89,7 @@ export class HomePage {
       this.cargaTemplate1();
     }
   }
+  
   /*FIN SINCRONIZACION-----------------------------------------------------*/
 
   /*LOGICA-----------------------------------------------------------------*/
@@ -201,30 +201,34 @@ export class HomePage {
       .filter(objeto2 => { return objeto2.id == paramId; }, err => console.log(err))[0];
   }
 
-  primerPregunta() {//retorna la primer pregunta de la encuesta
+  primerPregunta() {
     return JSON.parse(JSON.stringify(this.encuesta.json.preguntas))
       .map(objeto => { return objeto; }, err => console.log(err))
       .filter(objeto2 => { return objeto2.inicial == true; }, err => console.log(err))[0];
     //Ejemplo: {id: 1, pregunta: "Como...?", opciones: Array[3], inicial: true}
   }
+
   /*FIN FILTROS------------------------------------------------------------*/
 
   /*DEVICE-----------------------------------------------------------------*/
   setUuid() {
     this.uuid = this.device.uuid;
   }
+
   /*FIN DEVICE-------------------------------------------------------------*/
 
   /*HTTP-------------------------------------------------------------------*/
   getEncuestaRemota() {
     this.encuesta = this.http.getJsonData();
   }
+
   /*FIN HTTP---------------------------------------------------------------*/
 
   /*KIOSK-MODE-------------------------------------------------------------*/
   deshabilitaKiosko() {
     KioskPlugin.exitKiosk();
   }
+
   /*FIN KIOSK-MODE---------------------------------------------------------*/
 
   /*NATIVE-STORAGE---------------------------------------------------------*/
@@ -239,6 +243,7 @@ export class HomePage {
       },
       error => console.error('Error reading item ' + error));
   }
+
   /*FIN NATIVE-STORAGE-----------------------------------------------------*/
 
   /*CAMERA-----------------------------------------------------------------*/
@@ -257,6 +262,7 @@ export class HomePage {
       console.log('Fail take: ' + err);
     });
   }
+
   /*FIN CAMERA-------------------------------------------------------------*/
 }
 
