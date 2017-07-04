@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NavController, NavParams, Platform } from 'ionic-angular';
 import { Device } from '@ionic-native/device'
 import { NativeStorage } from '@ionic-native/native-storage';
@@ -8,6 +8,7 @@ import { PvdHttpProvider } from '../../providers/pvd-http/pvd-http';
 import { PvdCameraProvider } from '../../providers/pvd-camera/pvd-camera';
 import { PvdStorageProvider } from '../../providers/pvd-storage/pvd-storage';
 import { PvdSqliteProvider } from '../../providers/pvd-sqlite/pvd-sqlite';
+
 
 declare let KioskPlugin: any;
 
@@ -69,21 +70,47 @@ export class HomePage {
       http.getJsonData();
       this.encuesta = this.getEncuesta();
       this.setUuid();
+      this.elDemonio();
     });
   }
 
+  /*SINCRONIZACION---------------------------------------------------------*/
+  elDemonio(){
+    console.log('este demonio es un lokillo');
+    setTimeout(() => { this.elDemonio(); }, 1000);
+  }
+
+  continuara(){
+    var cantRespondida = this.aGuardar.opciones.length;
+    setTimeout(() => { this.continuaraAux(cantRespondida); }, 6000);
+  }
+
+  continuaraAux(val){
+    if(val == this.aGuardar.opciones.length){
+      this.cargaTemplate1();
+    }
+  }
+  /*FIN SINCRONIZACION-----------------------------------------------------*/
+
   /*LOGICA-----------------------------------------------------------------*/
   finalizaEncuesta() {
-    document.getElementById("preguntaContainer").innerHTML = 'MUCHAS GRACIAS POR SU TIEMPO!!';
     this.opcionesConImagen = [];
     this.opcionesSinImagen = [];
     this.conImagenes = true;
+    var pregCont = document.getElementById("preguntaContainer");
+    pregCont.style.height = "35%";
+    pregCont.innerHTML = 'GRACIAS';
+    this.guardarAGuardar();
+    setTimeout(() => { this.cargaTemplate1(); }, 2000);
   }
 
   cargaTemplate1() {
+    this.clean();
     this.preguntaInicial = this.primerPregunta();
     var opcionesPregunta1 = this.opcionesPregunta(this.preguntaInicial);
-    document.getElementById("preguntaContainer").innerHTML = this.preguntaInicial.pregunta;
+    var pregCont = document.getElementById("preguntaContainer");
+    pregCont.style.height = "35%";
+    pregCont.innerHTML = this.preguntaInicial.pregunta;
     if (this.conImagenes) {
       this.opcionesInicialesCI = opcionesPregunta1;
     } else {
@@ -92,17 +119,21 @@ export class HomePage {
   }
 
   preguntaSgte(opcion) {
+    this.continuara();
     this.aGuardar.opciones[this.aGuardar.opciones.length] = opcion.id;
     if (opcion.preguntasiguiente != null) {
       var preguntaActual = this.preguntaPorId(opcion.preguntasiguiente);
-      
       var opcionesPreguntaActual = this.opcionesPregunta(preguntaActual);
       this.opcionesConImagen = [];
       this.opcionesSinImagen = [];
-      if(preguntaActual.pregunta != null){
-        document.getElementById("preguntaContainer").innerHTML = preguntaActual.pregunta;
-      }else{
-        document.getElementById("preguntaContainer").innerHTML = 'Opciones:';
+      var pregCont = document.getElementById("preguntaContainer");
+
+      if (preguntaActual.pregunta != null) {
+        pregCont.style.height = "35%";
+        pregCont.innerHTML = preguntaActual.pregunta;
+      } else {
+        pregCont.style.height = "0%";
+        pregCont.innerHTML = null;
       }
       if (this.conImagenes) {
         this.opcionesConImagen = opcionesPreguntaActual;
@@ -119,15 +150,11 @@ export class HomePage {
     this.aGuardar.idDispositivo = this.uuid;
     this.aGuardar.fecha = new Date();
     this.aGuardar.idEncuesta = this.encuesta.id;
-    this.aGuardar.opciones[this.aGuardar.opciones.length] = opcion.id;
-    console.log('-----------------------aGuardar');
-    console.log(this.aGuardar);
   }
 
   clean() {
     this.opcionesConImagen = [];
     this.opcionesSinImagen = [];
-
     this.aGuardar = {
       foto: '',
       fecha: '',
@@ -137,6 +164,11 @@ export class HomePage {
     };
 
   }
+
+  guardarAGuardar(){
+
+  }
+
   /*FIN LOGICA-------------------------------------------------------------*/
 
   /*FILTROS----------------------------------------------------------------*/
@@ -151,9 +183,9 @@ export class HomePage {
       err => console.log(err))
       .filter(
       objeto2 => {
-        for(let id of pregunta.opciones){
-          if(objeto2.id == id){
-            if(objeto2.imagen == ''){
+        for (let id of pregunta.opciones) {
+          if (objeto2.id == id) {
+            if (objeto2.imagen == '') {
               this.conImagenes = false;
             }
             return objeto2;
