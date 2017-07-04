@@ -20,19 +20,19 @@ export class PvdHttpProvider {
     /*editar campo url con la definitiva*/
     //var url = 'http://192.168.0.59:8080/tapuy/device/getEncuesta?idDispositivo=42&fechaModificacion=01/02/2017';
     var url = 'http://192.168.0.61:8080/tapuy/device/getEncuesta?idDispositivo=32&fechaModificacion=01/02/2017';
-    //var respuesta
-    var respuesta = this.getJson();
-    console.log(respuesta);
-    this.pdvStorage.setEncuesta(respuesta);
-    /*this.http.get(url).map(res => res.json()).subscribe(
+    var respuesta;
+    //var respuesta = this.getJson();
+    //console.log(respuesta);
+    //this.pdvStorage.setEncuesta(respuesta);
+    this.http.get(url).map(res => res.json()).subscribe(
       data => {
         respuesta = JSON.parse(JSON.stringify(data));
+        console.log('RESPUESTA:------------->');
+        console.log(respuesta);
       },
-      err => console.log("Fallo la comunicacioón co el servidor"),
+      err => console.log("Fallo la comunicación con el servidor de encuestas._"),
       () => this.pdvStorage.setEncuesta(respuesta)
-    );*/
-
-    return respuesta;
+    );
   }
 
   getJson() {

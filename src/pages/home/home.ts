@@ -21,10 +21,22 @@ export class HomePage {
   uuid: String;
   encuesta: any;
   preguntaInicial: any;
+  opcionesInicialesCI: any = [];
+  opcionesInicialesSI: any = [];
   preguntas: any = [];
   opciones: any = [];
+
   opcionesConImagen: any = [];
   opcionesSinImagen: any = [];
+
+  aGuardar: any = {
+    foto: '',
+    fecha: '',
+    idDispositivo: '',
+    idEncuesta: '',
+    opciones: []
+  };
+
   conImagenes: boolean = true;//declaro la bandera de imagenes
   //camera params
   picture: string = '';
@@ -54,7 +66,7 @@ export class HomePage {
     public camera: CameraPreview,
     private device: Device) {
     platform.ready().then(() => {
-      //http.getJsonData();
+      http.getJsonData();
       this.encuesta = this.getEncuesta();
       this.setUuid();
     });
@@ -65,52 +77,88 @@ export class HomePage {
     document.getElementById("preguntaContainer").innerHTML = 'MUCHAS GRACIAS POR SU TIEMPO!!';
     this.opcionesConImagen = [];
     this.opcionesSinImagen = [];
-    this.conImagenes = true;//declaro la bandera de imagenes
+    this.conImagenes = true;
   }
 
   cargaTemplate1() {
     this.preguntaInicial = this.primerPregunta();
     var opcionesPregunta1 = this.opcionesPregunta(this.preguntaInicial);
-    console.log('opcionesPregunta1');
-    console.log(opcionesPregunta1);
-    console.log(this.preguntaInicial.opciones);
     document.getElementById("preguntaContainer").innerHTML = this.preguntaInicial.pregunta;
     if (this.conImagenes) {
-      this.opcionesConImagen = opcionesPregunta1;
+      this.opcionesInicialesCI = opcionesPregunta1;
     } else {
-      this.opcionesSinImagen = opcionesPregunta1;
+      this.opcionesInicialesSI = opcionesPregunta1;
     }
   }
 
-  pageSgte(paramId) {
-    var preguntaActual = this.preguntaPorId(paramId);
-    var opcionesPreguntaActual = this.opcionesPregunta(preguntaActual);
+  preguntaSgte(opcion) {
+    this.aGuardar.opciones[this.aGuardar.opciones.length] = opcion.id;
+    if (opcion.preguntasiguiente != null) {
+      var preguntaActual = this.preguntaPorId(opcion.preguntasiguiente);
+      
+      var opcionesPreguntaActual = this.opcionesPregunta(preguntaActual);
+      this.opcionesConImagen = [];
+      this.opcionesSinImagen = [];
+      if(preguntaActual.pregunta != null){
+        document.getElementById("preguntaContainer").innerHTML = preguntaActual.pregunta;
+      }else{
+        document.getElementById("preguntaContainer").innerHTML = 'Opciones:';
+      }
+      if (this.conImagenes) {
+        this.opcionesConImagen = opcionesPreguntaActual;
+      } else {
+        this.opcionesSinImagen = opcionesPreguntaActual;
+      }
+    } else {
+      this.finalizaEncuesta()
+    }
+  }
+
+  setAGuardar(opcion) {
+    this.aGuardar.foto = this.picture;
+    this.aGuardar.idDispositivo = this.uuid;
+    this.aGuardar.fecha = new Date();
+    this.aGuardar.idEncuesta = this.encuesta.id;
+    this.aGuardar.opciones[this.aGuardar.opciones.length] = opcion.id;
+    console.log('-----------------------aGuardar');
+    console.log(this.aGuardar);
+  }
+
+  clean() {
     this.opcionesConImagen = [];
     this.opcionesSinImagen = [];
-    document.getElementById("preguntaContainer").innerHTML = preguntaActual.pregunta;
-    if (this.conImagenes) {
-      this.opcionesConImagen = opcionesPreguntaActual;
-    } else {
-      this.opcionesSinImagen = opcionesPreguntaActual;
-    }
+
+    this.aGuardar = {
+      foto: '',
+      fecha: '',
+      idDispositivo: '',
+      idEncuesta: '',
+      opciones: []
+    };
+
   }
   /*FIN LOGICA-------------------------------------------------------------*/
 
   /*FILTROS----------------------------------------------------------------*/
   opcionesPregunta(pregunta) {
     this.conImagenes = true;
+    var currOps = [];
     return JSON.parse(JSON.stringify(this.encuesta.json.opciones))
       .map(
       objeto => {
-        if (objeto.imagen == "" && objeto.id in pregunta.opciones) {
-          this.conImagenes = false;
-        }
         return objeto;
       },
       err => console.log(err))
       .filter(
       objeto2 => {
-        return objeto2.id in pregunta.opciones;
+        for(let id of pregunta.opciones){
+          if(objeto2.id == id){
+            if(objeto2.imagen == ''){
+              this.conImagenes = false;
+            }
+            return objeto2;
+          }
+        }
       },
       err => console.log(err));
   }
@@ -152,7 +200,7 @@ export class HomePage {
     this.nativeStorage.getItem('encuesta').then(
       data => {
         var respuesta = JSON.parse(JSON.stringify(data));
-        this.encuesta = respuesta; //recupero la encuesta del dispositivo
+        this.encuesta = respuesta;
         this.preguntas = this.encuesta.json.preguntas;
         this.opciones = this.encuesta.json.opciones;
         this.cargaTemplate1();
@@ -165,8 +213,11 @@ export class HomePage {
   sacaFoto(opcion) {
     this.camera.takePicture(this.pictureOpts).then((imageData) => {
       this.picture = 'data:image/jpeg;base64,' + imageData;
+      this.opcionesInicialesCI = [];
+      this.opcionesInicialesSI = [];
+      this.setAGuardar(opcion);
       if (opcion.preguntasiguiente != 'null') {
-        this.pageSgte(opcion.preguntasiguiente);
+        this.preguntaSgte(opcion);
       } else {
         this.finalizaEncuesta();
       }
