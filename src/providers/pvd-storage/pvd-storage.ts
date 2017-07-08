@@ -15,7 +15,7 @@ export class PvdStorageProvider {
   constructor(public nativeStorage: NativeStorage) {
     //console.log('Hello PvdStorageProvider Provider');
   }
-  
+
   //guarda una encuesta en el dispositivo
   setEncuesta(encuesta) {
     this.nativeStorage.remove('encuesta')
@@ -30,16 +30,16 @@ export class PvdStorageProvider {
 
   //obtiene la encuesta almacenada en el dispositivo
   getEncuesta() {
-    this.nativeStorage.getItem('encuesta').then(
-      data => { 
-        var respuesta = JSON.parse(JSON.stringify(data));
-        return respuesta; },
-      error => console.error('Error storing item ' + error));
+    return this.nativeStorage.getItem('encuesta')
+      .then(data => {
+        console.log(JSON.parse(JSON.stringify(data)));
+        return Promise.resolve(JSON.parse(JSON.stringify(data)));
+      })
   }
 
   //borra la encuesta almacenada en el dispositivo
   removeEncuesta() {
-    this.nativeStorage.remove('encuesta').then(
+    return this.nativeStorage.remove('encuesta').then(
       data => console.log('Encuesta removida.'),
       err => console.log(err));
   }

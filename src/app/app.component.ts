@@ -21,14 +21,14 @@ export class MyApp {
     fullScreen: AndroidFullScreen,
     sqlite: PvdSqliteProvider,
     camera: PvdCameraProvider
-   ) {
+  ) {
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
+      sqlite.crearBase();
       statusBar.hide();
       fullScreen.immersiveMode();
       splashScreen.hide();
-      sqlite.crearBase();
       camera.openCamera();
     });
   }

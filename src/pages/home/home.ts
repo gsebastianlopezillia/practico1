@@ -15,7 +15,7 @@ declare let KioskPlugin: any;
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html',
-  providers: [PvdHttpProvider, PvdCameraProvider, PvdStorageProvider]
+  providers: [PvdHttpProvider, PvdCameraProvider, PvdStorageProvider, PvdSqliteProvider]
 })
 
 export class HomePage {
@@ -26,6 +26,7 @@ export class HomePage {
   opcionesInicialesSI: any = [];
   preguntas: any = [];
   opciones: any = [];
+  respuestas: any = [];
 
   opcionesConImagen: any = [];
   opcionesSinImagen: any = [];
@@ -62,52 +63,77 @@ export class HomePage {
     public navParams: NavParams,
     public platform: Platform,
     public http: PvdHttpProvider,
+    public sqlite: PvdSqliteProvider,
     public storage: PvdStorageProvider,
     public nativeStorage: NativeStorage,
     public camera: CameraPreview,
     private device: Device) {
     platform.ready().then(() => {
       http.getJsonData();
-      this.encuesta = this.getEncuesta();
+      setTimeout(() => { this.encuesta = this.getEncuesta(); }, 3000);
+      //this.sincronizar();
+      //this.encuesta = this.getEncuesta();
       this.setUuid();
+      //setTimeout(() => { this.sincronizar(); }, 30000);
+      //this.sincronizar();
     });
   }
 
   /*SINCRONIZACION---------------------------------------------------------*/
-  elDemonio(){
+  elDemonio() {
     console.log('este demonio es un lokillo');
     setTimeout(() => { this.elDemonio(); }, 1000);
   }
 
-  continuara(){
-    var cantRespondida = this.aGuardar.opciones.length;
+  sincronizar() {
+    if (this.respuestas.length > 0) {
+      this.insertRespuesta(this.respuestas[this.respuestas.length - 1])
+        .then(() => {
+          console.log('quitando ' + this.respuestas.pop())
+        })
+    } else {
+      this.sqlite.sincronizaRespuestas();
+    }
+    setTimeout(() => { this.sincronizar(); }, 30000);
+  }
+
+  continuara() {
+    var cantRespondida = this.aGuardar.opciones;
     setTimeout(() => { this.continuaraAux(cantRespondida); }, 6000);
   }
 
-  continuaraAux(val){
-    if(val == this.aGuardar.opciones.length){
+  continuaraAux(val) {
+    if (val == this.aGuardar.opciones) {
       this.cargaTemplate1();
     }
   }
-  
+
   /*FIN SINCRONIZACION-----------------------------------------------------*/
 
   /*LOGICA-----------------------------------------------------------------*/
   finalizaEncuesta() {
+    let resp = this.aGuardar;
+    this.respuestas.push(resp);
+    console.log('resp');
+    console.log(resp);
+    //this.insertRespuesta(this.aGuardar);
     this.opcionesConImagen = [];
     this.opcionesSinImagen = [];
     this.conImagenes = true;
     var pregCont = document.getElementById("preguntaContainer");
     pregCont.style.height = "35%";
     pregCont.innerHTML = 'GRACIAS';
-    this.guardarAGuardar();
     setTimeout(() => { this.cargaTemplate1(); }, 2000);
   }
 
   cargaTemplate1() {
     this.clean();
     this.preguntaInicial = this.primerPregunta();
+    console.log('this.preguntaInicial');
+    console.log(this.preguntaInicial);
     var opcionesPregunta1 = this.opcionesPregunta(this.preguntaInicial);
+    console.log('opcionesPregunta1');
+    console.log(opcionesPregunta1);
     var pregCont = document.getElementById("preguntaContainer");
     pregCont.style.height = "35%";
     pregCont.innerHTML = this.preguntaInicial.pregunta;
@@ -148,8 +174,8 @@ export class HomePage {
   setAGuardar(opcion) {
     this.aGuardar.foto = this.picture;
     this.aGuardar.idDispositivo = this.uuid;
-    this.aGuardar.fecha = new Date();
-    this.aGuardar.idEncuesta = this.encuesta.id;
+    this.aGuardar.fecha = new Date().toLocaleString();
+    this.aGuardar.idEncuesta = this.encuesta.json.encuesta;
   }
 
   clean() {
@@ -165,16 +191,12 @@ export class HomePage {
 
   }
 
-  guardarAGuardar(){
-
-  }
 
   /*FIN LOGICA-------------------------------------------------------------*/
 
   /*FILTROS----------------------------------------------------------------*/
   opcionesPregunta(pregunta) {
     this.conImagenes = true;
-    var currOps = [];
     return JSON.parse(JSON.stringify(this.encuesta.json.opciones))
       .map(
       objeto => {
@@ -192,7 +214,7 @@ export class HomePage {
           }
         }
       },
-      err => console.log(err));
+      err => console.log(err)).sort(function (a, b) { return a.orden - b.orden });
   }
 
   preguntaPorId(paramId: number) {
@@ -210,6 +232,56 @@ export class HomePage {
 
   /*FIN FILTROS------------------------------------------------------------*/
 
+  /*SQLITE-----------------------------------------------------------------*/
+  deleteBases() {
+    this.sqlite.deleteRespuestas()
+      .then(res => {
+      })
+      .catch(e => {
+        console.log('DeleteBases()-ERR');
+      })
+  }
+
+  getRespuestas() {
+    this.sqlite.getAllRespuestas()
+      .then(res => {
+        console.log('getRespuestas()-OK');
+        console.log(res);
+      })
+      .catch(e => {
+        console.log('getRespuestas()-ERR');
+        console.log(e);
+      })
+  }
+
+  getOpciones() {
+    this.sqlite.getAllOpciones()
+      .then(res => {
+        console.log('getOpciones()-OK');
+        console.log(res);
+      })
+      .catch(e => {
+        console.log('getOpciones()-ERR');
+        console.log(e);
+      })
+  }
+
+  insertRespuesta(obj) {
+    console.log('obj de insert');
+    console.log(obj);
+    return this.sqlite.insertRespuesta(obj)
+      .then(res => {
+        console.log('res home');
+        console.log(JSON.parse(JSON.stringify(res)));
+        //this.sincronizar();
+      })
+      .catch(e => {
+        console.log('insertRespuesta()-ERR');
+      });
+  }
+
+  /*FIN SQLITE-------------------------------------------------------------*/
+
   /*DEVICE-----------------------------------------------------------------*/
   setUuid() {
     this.uuid = this.device.uuid;
@@ -221,6 +293,7 @@ export class HomePage {
   getEncuestaRemota() {
     this.encuesta = this.http.getJsonData();
   }
+
 
   /*FIN HTTP---------------------------------------------------------------*/
 
@@ -235,29 +308,40 @@ export class HomePage {
   getEncuesta() {
     this.nativeStorage.getItem('encuesta').then(
       data => {
-        var respuesta = JSON.parse(JSON.stringify(data));
-        this.encuesta = respuesta;
+        this.encuesta = JSON.parse(JSON.stringify(data));
+        console.log('data');
+        console.log(data);
+        console.log('this.encuesta');
+        console.log(this.encuesta);
         this.preguntas = this.encuesta.json.preguntas;
+        this.preguntas.sort(function (a, b) { return a.orden - b.orden });
         this.opciones = this.encuesta.json.opciones;
+        this.opciones.sort(function (a, b) { return a.orden - b.orden });
+        console.log(this.encuesta)
         this.cargaTemplate1();
       },
-      error => console.error('Error reading item ' + error));
+      error => {
+        console.error('Error reading item ');
+        console.error(JSON.parse(error))
+      });
   }
 
   /*FIN NATIVE-STORAGE-----------------------------------------------------*/
 
   /*CAMERA-----------------------------------------------------------------*/
   sacaFoto(opcion) {
-    this.camera.takePicture(this.pictureOpts).then((imageData) => {
-      this.picture = 'data:image/jpeg;base64,' + imageData;
+    if (opcion.preguntasiguiente != 'null') {
       this.opcionesInicialesCI = [];
       this.opcionesInicialesSI = [];
+      this.preguntaSgte(opcion);
+    } else {
+      this.opcionesInicialesCI = [];
+      this.opcionesInicialesSI = [];
+      this.finalizaEncuesta();
+    }
+    this.camera.takePicture(this.pictureOpts).then((imageData) => {
+      this.picture = 'data:image/jpeg;base64,' + imageData;
       this.setAGuardar(opcion);
-      if (opcion.preguntasiguiente != 'null') {
-        this.preguntaSgte(opcion);
-      } else {
-        this.finalizaEncuesta();
-      }
     }, (err) => {
       console.log('Fail take: ' + err);
     });
