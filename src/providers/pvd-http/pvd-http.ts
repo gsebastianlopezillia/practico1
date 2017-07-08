@@ -21,12 +21,14 @@ export class PvdHttpProvider {
     public device: Device) {
   }
 
+  encuestaVieja() {
+    return this.pvdStorage.getEncuesta()
+  }
+
   getJsonData() {
-    /*editar campo url con la definitiva*/
-    //var url = 'http://192.168.0.59:8080/tapuy/device/getEncuesta?idDispositivo=42&fechaModificacion=01/02/2017';
-    //var url = 'http://192.168.0.53:8080/tapuy/device/getEncuesta?idDispositivo=32&fechaModificacion=01/02/2017';
+
     var uuid = this.device.uuid;
-    var url = 'http://192.168.0.52:8080/tapuy/device/getEncuesta?idDispositivo='+uuid+'&fechaModificacion=01/02/2017';
+    var url = 'http://192.168.0.52:8080/tapuy/device/getEncuesta?idDispositivo=' + uuid + '&fechaModificacion=01/02/2017';
     console.log('url');
     console.log(url);
     var respuesta;
@@ -41,22 +43,7 @@ export class PvdHttpProvider {
       },
       err => console.log("Fallo la comunicación con el servidor de encuestas._"),
       () => {
-        this.pvdStorage.getEncuesta()
-          .then(res => {
-            let vieja = JSON.parse(JSON.stringify(res));
-            console.log('--------------VIEJA');
-            console.log(vieja);
-            if (res.encuesta != respuesta.encuesta) {
-              this.pvdStorage.removeEncuesta().then(
-                () => {
-                  this.pvdStorage.setEncuesta(respuesta);
-                }
-              )
-            }
-          })
-          .catch(err => {
-            console.log(err);
-          })
+        this.pvdStorage.setEncuesta(respuesta);
       }
     );
   }
@@ -91,8 +78,14 @@ export class PvdHttpProvider {
     let options = new RequestOptions({ headers: headers });
     return this.http.post(url, body, options)
       .map(res => res.json())
-      .map(data => data.encuesta)
-      .toPromise();
+      .map(data => {
+        return Promise.resolve(data);
+      })
+      .toPromise().catch(e => {
+        console.log('Time out')
+        console.log(e)
+      })
+      
   }
 
   callPost2(objRespuesta) {

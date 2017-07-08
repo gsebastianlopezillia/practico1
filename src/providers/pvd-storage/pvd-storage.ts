@@ -17,10 +17,10 @@ export class PvdStorageProvider {
   }
 
   //guarda una encuesta en el dispositivo
-  setEncuesta(encuesta) {
+  setEncuesta(encuesta) {//no tocar
     this.nativeStorage.remove('encuesta')
       .then(data => {
-        this.nativeStorage.setItem('encuesta', { json: encuesta }).then(
+        this.nativeStorage.setItem('encuesta',  encuesta ).then(
           () => console.log('Encuesta en Storage'),
           err => console.error('Error storing item', err)
         );
@@ -32,8 +32,12 @@ export class PvdStorageProvider {
   getEncuesta() {
     return this.nativeStorage.getItem('encuesta')
       .then(data => {
+        console.log('respuesta de getEncuesta en pvdStorage');
         console.log(JSON.parse(JSON.stringify(data)));
         return Promise.resolve(JSON.parse(JSON.stringify(data)));
+      },
+      err =>{
+        return Promise.reject('No hay encuesta en storage');
       })
   }
 

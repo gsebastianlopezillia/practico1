@@ -69,32 +69,43 @@ export class HomePage {
     public camera: CameraPreview,
     private device: Device) {
     platform.ready().then(() => {
-      http.getJsonData();
+      this.traerEncuestaServidor()
       setTimeout(() => { this.encuesta = this.getEncuesta(); }, 3000);
-      //this.sincronizar();
-      //this.encuesta = this.getEncuesta();
       this.setUuid();
-      //setTimeout(() => { this.sincronizar(); }, 30000);
-      //this.sincronizar();
+      this.elDemonio();
     });
   }
 
   /*SINCRONIZACION---------------------------------------------------------*/
+
+  traerEncuestaServidor() {
+    console.log('Buscando encuesta en servidor');
+    this.http.getJsonData();
+    setTimeout(() => { this.traerEncuestaServidor(); }, 60 * 60 * 1000);
+  }
+
+
   elDemonio() {
-    console.log('este demonio es un lokillo');
-    setTimeout(() => { this.elDemonio(); }, 1000);
+
+    this.sincronizar();
+    console.log('Pasando datos a memoria y sincronizando');
+    setTimeout(() => { this.elDemonio(); }, 60000);
   }
 
   sincronizar() {
     if (this.respuestas.length > 0) {
+      console.log('entra al if');
       this.insertRespuesta(this.respuestas[this.respuestas.length - 1])
         .then(() => {
-          console.log('quitando ' + this.respuestas.pop())
+          this.respuestas.pop()
+
         })
     } else {
-      this.sqlite.sincronizaRespuestas();
+      console.log('entra al else');
+      this.sqlite.sincroniza();
+
     }
-    setTimeout(() => { this.sincronizar(); }, 30000);
+    //setTimeout(() => { this.sincronizar(); }, 30000);
   }
 
   continuara() {
@@ -116,7 +127,8 @@ export class HomePage {
     this.respuestas.push(resp);
     console.log('resp');
     console.log(resp);
-    //this.insertRespuesta(this.aGuardar);
+    console.log('this.respuestas');
+    console.log(this.respuestas);
     this.opcionesConImagen = [];
     this.opcionesSinImagen = [];
     this.conImagenes = true;
@@ -232,52 +244,13 @@ export class HomePage {
 
   /*FIN FILTROS------------------------------------------------------------*/
 
-  /*SQLITE-----------------------------------------------------------------*/
-  deleteBases() {
-    this.sqlite.deleteRespuestas()
-      .then(res => {
-      })
-      .catch(e => {
-        console.log('DeleteBases()-ERR');
-      })
-  }
-
-  getRespuestas() {
-    this.sqlite.getAllRespuestas()
-      .then(res => {
-        console.log('getRespuestas()-OK');
-        console.log(res);
-      })
-      .catch(e => {
-        console.log('getRespuestas()-ERR');
-        console.log(e);
-      })
-  }
-
-  getOpciones() {
-    this.sqlite.getAllOpciones()
-      .then(res => {
-        console.log('getOpciones()-OK');
-        console.log(res);
-      })
-      .catch(e => {
-        console.log('getOpciones()-ERR');
-        console.log(e);
-      })
-  }
-
+  /*SQLITE-----------------------------------------------------------------
+  
+*/
   insertRespuesta(obj) {
     console.log('obj de insert');
     console.log(obj);
-    return this.sqlite.insertRespuesta(obj)
-      .then(res => {
-        console.log('res home');
-        console.log(JSON.parse(JSON.stringify(res)));
-        //this.sincronizar();
-      })
-      .catch(e => {
-        console.log('insertRespuesta()-ERR');
-      });
+    return this.sqlite.insertRespuesta(JSON.stringify(obj));
   }
 
   /*FIN SQLITE-------------------------------------------------------------*/
@@ -305,19 +278,14 @@ export class HomePage {
   /*FIN KIOSK-MODE---------------------------------------------------------*/
 
   /*NATIVE-STORAGE---------------------------------------------------------*/
-  getEncuesta() {
+  getEncuesta() {//not tocar
     this.nativeStorage.getItem('encuesta').then(
       data => {
         this.encuesta = JSON.parse(JSON.stringify(data));
-        console.log('data');
-        console.log(data);
-        console.log('this.encuesta');
-        console.log(this.encuesta);
         this.preguntas = this.encuesta.json.preguntas;
         this.preguntas.sort(function (a, b) { return a.orden - b.orden });
         this.opciones = this.encuesta.json.opciones;
         this.opciones.sort(function (a, b) { return a.orden - b.orden });
-        console.log(this.encuesta)
         this.cargaTemplate1();
       },
       error => {
