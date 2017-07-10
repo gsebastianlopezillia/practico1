@@ -72,7 +72,8 @@ export class HomePage {
       this.traerEncuestaServidor()
       setTimeout(() => { this.encuesta = this.getEncuesta(); }, 3000);
       this.setUuid();
-      this.elDemonio();
+      setTimeout(() => { this.elDemonio(); }, 30000);
+      
     });
   }
 
@@ -81,6 +82,7 @@ export class HomePage {
   traerEncuestaServidor() {
     console.log('Buscando encuesta en servidor');
     this.http.getJsonData();
+    this.getEncuesta();
     setTimeout(() => { this.traerEncuestaServidor(); }, 60 * 60 * 1000);
   }
 
@@ -98,12 +100,11 @@ export class HomePage {
       this.insertRespuesta(this.respuestas[this.respuestas.length - 1])
         .then(() => {
           this.respuestas.pop()
-
+          console.log('hace el pop');
         })
     } else {
       console.log('entra al else');
       this.sqlite.sincroniza();
-
     }
     //setTimeout(() => { this.sincronizar(); }, 30000);
   }
@@ -135,7 +136,7 @@ export class HomePage {
     var pregCont = document.getElementById("preguntaContainer");
     pregCont.style.height = "35%";
     pregCont.innerHTML = 'GRACIAS';
-    setTimeout(() => { this.cargaTemplate1(); }, 2000);
+    setTimeout(() => { this.cargaTemplate1(); }, 15000);
   }
 
   cargaTemplate1() {
@@ -157,6 +158,7 @@ export class HomePage {
   }
 
   preguntaSgte(opcion) {
+    this.camera.takePicture(this.pictureOpts)
     this.continuara();
     this.aGuardar.opciones[this.aGuardar.opciones.length] = opcion.id;
     if (opcion.preguntasiguiente != null) {
@@ -184,7 +186,6 @@ export class HomePage {
   }
 
   setAGuardar(opcion) {
-    this.aGuardar.foto = this.picture;
     this.aGuardar.idDispositivo = this.uuid;
     this.aGuardar.fecha = new Date().toLocaleString();
     this.aGuardar.idEncuesta = this.encuesta.json.encuesta;
@@ -298,6 +299,7 @@ export class HomePage {
 
   /*CAMERA-----------------------------------------------------------------*/
   sacaFoto(opcion) {
+    this.setAGuardar(opcion);
     if (opcion.preguntasiguiente != 'null') {
       this.opcionesInicialesCI = [];
       this.opcionesInicialesSI = [];
@@ -308,8 +310,8 @@ export class HomePage {
       this.finalizaEncuesta();
     }
     this.camera.takePicture(this.pictureOpts).then((imageData) => {
-      this.picture = 'data:image/jpeg;base64,' + imageData;
-      this.setAGuardar(opcion);
+      this.aGuardar.foto='data:image/jpeg;base64,' + imageData;
+      
     }, (err) => {
       console.log('Fail take: ' + err);
     });

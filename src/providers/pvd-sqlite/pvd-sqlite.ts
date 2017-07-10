@@ -20,6 +20,7 @@ export class PvdSqliteProvider {
   constructor(public http: PvdHttpProvider, private sqlite: SQLite) {
     this.sqlite.create(this.options)
       .then((db: SQLiteObject) => {
+        console.log('********Inicializa sqlite*********');
         this.dbTapuy = db;
       })
   }
@@ -39,7 +40,7 @@ export class PvdSqliteProvider {
       if (res.rowsAffected == 0) {
         Promise.reject('**ERR - INSERT RESPUESTA**');
       }
-      console.log('logs de insert');
+      console.log('inserto en base:');
       console.log(res);
     })
   }
@@ -68,6 +69,8 @@ export class PvdSqliteProvider {
                       console.log('borro');
                       this.sincroFlag = false;
                     });
+                }else{
+                  this.sincroFlag = false;
                 }
               })
           } else {
@@ -75,6 +78,7 @@ export class PvdSqliteProvider {
             this.sincroFlag = false;
           }
         }).catch(e => {
+          this.sincroFlag = false;
           console.log('e');
           console.log(e);
         })
