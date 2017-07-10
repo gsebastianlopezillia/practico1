@@ -28,7 +28,7 @@ export class PvdHttpProvider {
   getJsonData() {
 
     var uuid = this.device.uuid;
-    var url = 'http://192.168.0.52:8080/tapuy/device/getEncuesta?idDispositivo=' + uuid + '&fechaModificacion=01/02/2017';
+    var url = 'http://tapuy.cloud.runaid.com.ar/device/getEncuesta?idDispositivo=' + uuid + '&fechaModificacion=01/02/2017';
     console.log('url');
     console.log(url);
     var respuesta;
@@ -52,7 +52,7 @@ export class PvdHttpProvider {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     //let urlPost = 'http://192.168.0.53:8080/tapuy/device/addFormulario';
-    let urlPost = 'http://192.168.0.52:8080/tapuy/device/addFormulario';
+    let urlPost = 'http://tapuy.cloud.runaid.com.ar/device/addFormulario';
     return this.http.post(urlPost, JSON.stringify(objRespuesta), { headers: headers })
       .map(res => res.json())
       .subscribe(data => {
@@ -72,7 +72,7 @@ export class PvdHttpProvider {
 
   callPost3(objRespuesta) {
     console.log('entra a callPost3');
-    let url = 'http://192.168.0.52:8080/tapuy/device/addFormulario';
+    let url = 'http://tapuy.cloud.runaid.com.ar/device/addFormulario';
     let body = JSON.stringify(objRespuesta);
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
@@ -88,26 +88,6 @@ export class PvdHttpProvider {
       
   }
 
-  callPost2(objRespuesta) {
-    console.log('entra a callPost2');
-    //let url = 'http://192.168.0.53:8080/tapuy/device/addFormulario';
-    let url = 'http://192.168.0.52:8080/tapuy/device/addFormulario';
-    let body = JSON.stringify(objRespuesta);
-    let headers = new Headers({ 'Content-Type': 'application/json' });
-    let options = new RequestOptions({ headers: headers });
-    return this.http.post(url, body, options)
-      .toPromise()
-      .then(res => {
-        res.json();
-        console.log(body);
-        console.log('----------------------------then callpost 2');
-        console.log(JSON.parse(res.text()).encuesta);
-        return Promise.resolve(JSON.parse(res.text()).encuesta);
-      })
-      .catch(e => {
-        return Promise.reject(e);
-      })
-  }
 
   getJson() {
     console.log('------------------------------getJson---------------------------------------');

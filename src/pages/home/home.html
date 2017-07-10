@@ -6,7 +6,18 @@
     </ion-navbar>
 </ion-header>
 
-<ion-content padding text-center>
+<ion-content padding>
+    <div id="botonera" text-right>
+        <button item-left id="btnIzquierdo" color="light" ion-button clear small item-left (click)="clickBtnIzquierdo()"> * </button>
+        <button item-right id="btnDerecho" color="light" ion-button clear small item-right (click)="clickBtnDerecho()"> * </button>
+    </div>
+    <div id="invisibe" hidden="true">
+        <ion-item>
+            <ion-label>Dispositivo: {{uuid}}</ion-label>
+            <ion-input type="password" id="clave" (input)="setClave($event.target.value)" [value]="clave"></ion-input>
+            <button item-right id="btnClave" color="assertive" ion-button clear small item-right (click)="desbloquear()">Desbloquear</button>
+        </ion-item>
+    </div>
     <div text-center id="preguntaContainer" style="font-family: Arial, Helvetica, sans-serif; font-size: 5em"></div>
     <div id="opcionesContainer" text-center>
         <ion-list>
@@ -24,8 +35,4 @@
 
         </ion-list>
     </div>
-    <button ion-button small (click)="deshabilitaKiosko()">deshabilitaKiosko</button>
-    <button ion-button small (click)="sincronizar()">sincronizar</button>
-
-
 </ion-content>

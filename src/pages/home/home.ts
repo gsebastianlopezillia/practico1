@@ -8,14 +8,15 @@ import { PvdHttpProvider } from '../../providers/pvd-http/pvd-http';
 import { PvdCameraProvider } from '../../providers/pvd-camera/pvd-camera';
 import { PvdStorageProvider } from '../../providers/pvd-storage/pvd-storage';
 import { PvdSqliteProvider } from '../../providers/pvd-sqlite/pvd-sqlite';
-
+import { NgModel } from '@angular/forms';
 
 declare let KioskPlugin: any;
 
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html',
-  providers: [PvdHttpProvider, PvdCameraProvider, PvdStorageProvider, PvdSqliteProvider]
+  providers: [PvdHttpProvider, PvdCameraProvider, PvdStorageProvider, PvdSqliteProvider, NgModel]
+  
 })
 
 export class HomePage {
@@ -27,9 +28,13 @@ export class HomePage {
   preguntas: any = [];
   opciones: any = [];
   respuestas: any = [];
+  clave: any;
 
   opcionesConImagen: any = [];
   opcionesSinImagen: any = [];
+
+  contadorBtnDer: any = 0;
+  contadorBtnIzq: any = 0;
 
   aGuardar: any = {
     foto: '',
@@ -73,19 +78,16 @@ export class HomePage {
       setTimeout(() => { this.encuesta = this.getEncuesta(); }, 3000);
       this.setUuid();
       setTimeout(() => { this.elDemonio(); }, 30000);
-      
     });
   }
 
   /*SINCRONIZACION---------------------------------------------------------*/
-
   traerEncuestaServidor() {
     console.log('Buscando encuesta en servidor');
     this.http.getJsonData();
     this.getEncuesta();
     setTimeout(() => { this.traerEncuestaServidor(); }, 60 * 60 * 1000);
   }
-
 
   elDemonio() {
 
@@ -204,7 +206,6 @@ export class HomePage {
 
   }
 
-
   /*FIN LOGICA-------------------------------------------------------------*/
 
   /*FILTROS----------------------------------------------------------------*/
@@ -245,9 +246,7 @@ export class HomePage {
 
   /*FIN FILTROS------------------------------------------------------------*/
 
-  /*SQLITE-----------------------------------------------------------------
-  
-*/
+  /*SQLITE-----------------------------------------------------------------*/
   insertRespuesta(obj) {
     console.log('obj de insert');
     console.log(obj);
@@ -268,12 +267,80 @@ export class HomePage {
     this.encuesta = this.http.getJsonData();
   }
 
-
   /*FIN HTTP---------------------------------------------------------------*/
 
   /*KIOSK-MODE-------------------------------------------------------------*/
+  setClave(c){
+    this.clave = c;
+  }
+
   deshabilitaKiosko() {
     KioskPlugin.exitKiosk();
+  }
+
+  clickBtnDerecho() {
+    if (this.contadorBtnIzq != 2) {
+      this.contadorBtnDer = 0;
+      this.contadorBtnIzq = 0;
+    }else{
+      this.contadorBtnDer++;
+    }
+  }
+
+  clickBtnIzquierdo() {
+    this.contadorBtnIzq++;
+    this.confirmaClave();
+  }
+
+  confirmaClave() {
+    switch (this.contadorBtnIzq) {
+      case 1: {
+        if (this.contadorBtnDer != 0) {
+          this.contadorBtnDer = 0;
+          this.contadorBtnIzq = 0;
+        }
+        break;
+      }
+      case 2: {
+        if (this.contadorBtnDer != 0) {
+          this.contadorBtnDer = 0;
+          this.contadorBtnIzq = 0;
+        }
+        break;
+      }
+      case 3: {
+        if (this.contadorBtnDer != 1) {
+          this.contadorBtnDer = 0;
+          this.contadorBtnIzq = 0;
+        } else {
+          this.showClave();
+        }
+        break;
+      }
+      default: {
+        this.contadorBtnDer = 0;
+        this.contadorBtnIzq = 0;
+        break;
+      }
+    }
+  }
+
+  showClave() {
+    let divClave = document.getElementById('invisibe');
+    divClave.removeAttribute("hidden");
+    setTimeout(() => { this.hideClave(); }, 30000);
+  }
+
+  hideClave() {
+    let divClave = document.getElementById('invisibe');
+    divClave.setAttribute("hidden", "true");
+  }
+
+  desbloquear(){
+    let clave = document.getElementById('clave');
+    if(this.clave == 'lentes'){
+      this.deshabilitaKiosko();
+    }
   }
 
   /*FIN KIOSK-MODE---------------------------------------------------------*/
@@ -310,8 +377,8 @@ export class HomePage {
       this.finalizaEncuesta();
     }
     this.camera.takePicture(this.pictureOpts).then((imageData) => {
-      this.aGuardar.foto='data:image/jpeg;base64,' + imageData;
-      
+      this.aGuardar.foto = 'data:image/jpeg;base64,' + imageData;
+
     }, (err) => {
       console.log('Fail take: ' + err);
     });
