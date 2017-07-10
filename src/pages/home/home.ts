@@ -10,7 +10,7 @@ import { PvdStorageProvider } from '../../providers/pvd-storage/pvd-storage';
 import { PvdSqliteProvider } from '../../providers/pvd-sqlite/pvd-sqlite';
 import { NgModel } from '@angular/forms';
 
-declare let KioskPlugin: any;
+declare let runakyosk: any;
 
 @Component({
   selector: 'page-home',
@@ -74,6 +74,8 @@ export class HomePage {
     public camera: CameraPreview,
     private device: Device) {
     platform.ready().then(() => {
+      console.log(window);
+      runakyosk.kyosk();
       this.traerEncuestaServidor()
       setTimeout(() => { this.encuesta = this.getEncuesta(); }, 3000);
       this.setUuid();
@@ -275,7 +277,8 @@ export class HomePage {
   }
 
   deshabilitaKiosko() {
-    KioskPlugin.exitKiosk();
+    runakyosk.unkyosk();
+    //KioskPlugin.exitKiosk();
   }
 
   clickBtnDerecho() {
